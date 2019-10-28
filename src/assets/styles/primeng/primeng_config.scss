@@ -1,0 +1,32 @@
+@import '~primeicons/primeicons.css';
+@import '~primeng/resources/themes/nova-light/theme.css';
+@import '~primeng/resources/primeng.min.css';
+@import 'assets/styles/primeng/variables.scss';
+@import 'assets/styles/primeng/buttons.scss';
+@import 'assets/styles/primeng/tabs.scss';
+@import 'assets/styles/primeng/forms.scss';
+@import 'assets/styles/primeng/table.scss';
+
+body {
+  .ui-paginator .ui-paginator-pages .ui-paginator-page.ui-state-active {
+    background-color: $primary;
+  }
+
+  .ui-table-tbody {
+    a {
+      cursor: pointer;
+    }
+  }
+}
+
+.selected-list .c-list .c-token {
+  background: $primary;
+}
+
+body .ui-fieldset .ui-fieldset-legend {
+  font-size: 0.8rem !important;
+
+  a {
+    padding: 0.371em 0.8em !important;
+  }
+}

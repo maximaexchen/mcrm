@@ -1,0 +1,44 @@
+body {
+  .ui-button {
+    background-color: theme-color('primary');
+    border: 1px solid theme-color('primary');
+
+    &:enabled:hover {
+      color: $text-base-color;
+      background-color: $btn-bg-hover-color;
+      border-color: $panel-border-color;
+    }
+  }
+
+  .ui-button-secondary-outline {
+    color: $text-base-color;
+    background-color: $white;
+    border: 1px solid $btn-bg-color;
+  }
+
+  .ui-menubar-custom {
+    button {
+      background-color: theme-color('primary-light');
+    }
+  }
+
+  .ui-selectbutton .ui-button.ui-state-active {
+    background-color: theme-color('primary-light');
+    border-color: theme-color('primary-light');
+    color: $white;
+  }
+
+  .ui-fileupload {
+    .ui-fileupload-buttonbar {
+      .ui-button {
+        margin-right: 0;
+      }
+      .ui-fileupload-choose {
+        background-color: transparent;
+        border-color: theme-color('primary');
+        color: theme-color('primary');
+        margin-right: 10px;
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+/* @import '~bootstrap-sass/assets/stylesheets/bootstrap';
+@import '~bootstrap/scss/bootstrap';*/
+
+@import '~bootstrap/scss/functions';
+@import 'assets/styles/bootstrap/variables.scss';
+@import '~bootstrap/scss/variables';
+
+@import 'assets/styles/primeng/primeng_config.scss';
+@import 'assets/styles/bootstrap/bootstrap_config.scss';
+@import 'assets/styles/acp/app.scss';
+@import '~font-awesome/css/font-awesome.min.css';

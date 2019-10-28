@@ -1,0 +1,16 @@
+<div class="row">
+  <app-document-search></app-document-search>
+</div>
+<div class="row">
+  <div class="sidebar-content" [ngClass]="showSidebar ? 'col-sm-5' : ''">
+    <div class="navbar-primary" [ngClass]="showSidebar ? '' : 'collapsed'">
+      <app-customer-list></app-customer-list>
+    </div>
+  </div>
+  <div
+    class="main-content"
+    [ngClass]="showSidebar ? 'col-sm-7' : 'col-sm-12 collapsed'"
+  >
+    <router-outlet></router-outlet>
+  </div>
+</div>

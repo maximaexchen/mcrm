@@ -1,0 +1,27 @@
+<!-- Kopfbereich der Anwendung -->
+<div class="header">
+  <!-- Ausgabe von Meldungen -->
+  <app-notifications></app-notifications>
+  <p-confirmDialog
+    header="Confirmation"
+    icon="pi pi-exclamation-triangle"
+    [transitionOptions]="'60ms'"
+  ></p-confirmDialog>
+
+  <div class="container-fluid">
+    <!-- *ngIf="user && user.isValidUser == true" -->
+    <p-menubar
+      [model]="mainmenuItems"
+      styleClass="main-menubar"
+      [autoDisplay]="false"
+    >
+      <!-- <div>
+        <p-button
+          (onClick)="logout($event)"
+          label="Logout"
+          icon="fas fa-sign-out-alt"
+        ></p-button>
+      </div> -->
+    </p-menubar>
+  </div>
+</div>
