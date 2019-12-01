@@ -53,9 +53,6 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   }
 
   public onRowSelect(event) {
-    console.log('onRowSelect');
-    console.log(event);
-    console.log(event.data);
     this.router.navigate(['../customer/' + event.data._id + '/edit']);
   }
 

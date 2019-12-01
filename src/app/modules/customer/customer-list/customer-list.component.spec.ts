@@ -7,31 +7,32 @@ import { GeneralModule } from '@app/modules/general.module';
 import { CouchDBService } from '@app/services/couchDB.service';
 import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 import { of } from 'rxjs';
+import { Router } from '@angular/router';
 
 describe('CustomerListComponent', () => {
   let componentUnderTest: CustomerListComponent;
   let fixture: ComponentFixture<CustomerListComponent>;
   let couchDBServiceSpy: Spy<CouchDBService>;
   let couchDBService: CouchDBService;
-  let componentUnderTestSpy: Spy<CustomerListComponent>;
   let fakeCustomers: Customer[];
-  let fakeCustomersOutput: Customer[];
   let fakeCustomersInput: Customer[];
+  let router = {
+    navigate: jasmine.createSpy('navigate') // to spy on the url that has been routed
+  };
 
   Given(() => {
     TestBed.configureTestingModule({
       imports: [GeneralModule, RouterTestingModule],
-      declarations: [CustomerListComponent]
+      declarations: [CustomerListComponent],
+      providers: [{ provide: Router, useValue: router }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CustomerListComponent);
     componentUnderTest = fixture.componentInstance;
     couchDBServiceSpy = createSpyFromClass(CouchDBService);
-    componentUnderTestSpy = createSpyFromClass(CustomerListComponent);
     couchDBService = TestBed.get(CouchDBService);
 
     fakeCustomers = undefined;
-    fakeCustomersOutput = undefined;
     fakeCustomersInput = undefined;
   });
 
@@ -122,5 +123,24 @@ describe('CustomerListComponent', () => {
         ]);
       });
     });
+  });
+
+  describe('METHOD: showDetail(id)', () => {
+    const id = '1';
+
+    Given(() => {
+      router = TestBed.get(Router);
+    });
+    When(() => {
+      componentUnderTest.showDetail(id);
+      fixture.detectChanges();
+    });
+    Then(
+      async(() => {
+        expect(router.navigate).toHaveBeenCalledWith([
+          '../customer/' + id + '/edit'
+        ]);
+      })
+    );
   });
 });

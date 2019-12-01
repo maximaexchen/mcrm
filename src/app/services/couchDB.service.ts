@@ -8,12 +8,9 @@ import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 
 import { EnvService } from './env.service';
-import { NormDocument, Role } from '@models/index';
 import { Job } from '@app/models/job.model';
 import { Customer } from '@app/models/customer.model';
-
-// CouchDB Ubuntu Server
-/* $kP2ZernC */
+import { Role } from '@app/models';
 
 @Injectable({ providedIn: 'root' })
 export class CouchDBService {
@@ -100,9 +97,6 @@ export class CouchDBService {
   }
 
   public search(object: any): Observable<any> {
-    console.log('search');
-    console.log(JSON.stringify(object));
-    console.log(this.dbRequest + '/_find', object);
     return this.http.post(this.dbRequest + '/_find', object);
   }
 
