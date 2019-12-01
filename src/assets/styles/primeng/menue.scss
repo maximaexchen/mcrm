@@ -1,0 +1,49 @@
+body {
+  .ui-menubar {
+    /* .ui-menubar-root-list {
+  width: 100%;
+
+  li {
+    &:last-child {
+      float: right;
+    }
+  }
+}
+ */
+
+    .ui-menuitem-link {
+      &:hover {
+        background-color: $gray-300;
+        .ui-menuitem-text,
+        .ui-menuitem-icon {
+          /* color: $white; */
+        }
+      }
+    }
+
+    .ui-menuitem-link.ui-state-active {
+      background-color: $gray-500;
+
+      .ui-menuitem-text,
+      .ui-menuitem-icon {
+        color: $white;
+      }
+    }
+
+    .ui-menu .ui-menuitem-link:hover .ui-menuitem-icon,
+    .ui-menubar .ui-menuitem-link:hover .ui-menuitem-icon,
+    .ui-tieredmenu .ui-menuitem-link:hover .ui-menuitem-icon,
+    .ui-contextmenu .ui-menuitem-link:hover .ui-menuitem-icon,
+    .ui-megamenu .ui-menuitem-link:hover .ui-menuitem-icon,
+    .ui-slidemenu .ui-menuitem-link:hover .ui-menuitem-icon {
+    }
+
+    .ui-menu .ui-menuitem-link .ui-menuitem-text,
+    .ui-menubar .ui-menuitem-link .ui-menuitem-text,
+    .ui-tieredmenu .ui-menuitem-link .ui-menuitem-text,
+    .ui-contextmenu .ui-menuitem-link .ui-menuitem-text,
+    .ui-megamenu .ui-menuitem-link .ui-menuitem-text,
+    .ui-slidemenu .ui-menuitem-link .ui-menuitem-text {
+    }
+  }
+}

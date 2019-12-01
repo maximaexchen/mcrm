@@ -1,3 +1,5 @@
+import { Offer } from './../models/offer.model';
+import { Invoice } from './../models/invoice.model';
 import { User } from './../models/user.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -7,6 +9,8 @@ import { Observable, Subject } from 'rxjs';
 
 import { EnvService } from './env.service';
 import { NormDocument, Role } from '@models/index';
+import { Job } from '@app/models/job.model';
+import { Customer } from '@app/models/customer.model';
 
 // CouchDB Ubuntu Server
 /* $kP2ZernC */
@@ -21,11 +25,11 @@ export class CouchDBService {
 
   constructor(private env: EnvService, private http: HttpClient) {}
 
-  public writeEntry(document: NormDocument): Observable<any> {
+  public writeEntry(obj: any): Observable<any> {
     return this.http.post(this.dbRequest, document);
   }
 
-  public updateEntry(document: NormDocument, id: string): Observable<any> {
+  public updateEntry(obj: any, id: string): Observable<any> {
     return this.http.put(this.dbRequest + '/' + id, document);
   }
 
@@ -43,7 +47,6 @@ export class CouchDBService {
             entriesArray.push({ ...responseData['rows'][key]['doc'] });
           }
         }
-
         return entriesArray;
       })
     );
@@ -58,8 +61,30 @@ export class CouchDBService {
     return this.http.post(this.dbRequest + '/_bulk_docs', bulkObject);
   }
 
+  public getCustomers(): Observable<Customer[]> {
+    return this.fetchEntries(
+      '/_design/mcrm/_view/all-customers?include_docs=true'
+    );
+  }
+
   public getUsers(): Observable<User[]> {
     return this.fetchEntries('/_design/mcrm/_view/all-users?include_docs=true');
+  }
+
+  public getJobs(): Observable<Job[]> {
+    return this.fetchEntries('/_design/mcrm/_view/all-jobs?include_docs=true');
+  }
+
+  public getInvoices(): Observable<Invoice[]> {
+    return this.fetchEntries(
+      '/_design/mcrm/_view/all-invoices?include_docs=true'
+    );
+  }
+
+  public getOffers(): Observable<Offer[]> {
+    return this.fetchEntries(
+      '/_design/mcrm/_view/all-offers?include_docs=true'
+    );
   }
 
   public findDocuments(searchObject?: any): Observable<any> {

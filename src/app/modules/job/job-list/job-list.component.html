@@ -1,0 +1,62 @@
+<div class="info-panel position-top">
+  <h1 i18n="@@string-job-selection">Auswahl Job</h1>
+</div>
+
+<p-table
+  #dt
+  [value]="jobs"
+  [paginator]="true"
+  [rows]="13"
+  class="table"
+  selectionMode="single"
+  [(selection)]="selectedJobs"
+  (onRowSelect)="onRowSelect($event)"
+  [globalFilterFields]="['name']"
+  (onFilter)="onFilter($event)"
+>
+  <ng-template pTemplate="caption">
+    <div style="text-align: center;">
+      <i class="fas fa-search" style="margin:4px 6px 0 0;"></i>
+      <input
+        type="text"
+        pInputText
+        size="50"
+        i18n-placeholder
+        placeholder="Globale Suche"
+        (input)="dt.filterGlobal($event.target.value, 'contains')"
+        style="width:auto"
+      />
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th [pSortableColumn]="'name'">
+        Name
+        <p-sortIcon [field]="'name'"></p-sortIcon>
+      </th>
+      <th [pSortableColumn]="'customer'">
+        Kunde<p-sortIcon [field]="'customer'"></p-sortIcon>
+      </th>
+      <th [pSortableColumn]="'date'">
+        Datum<p-sortIcon [field]="'date'"></p-sortIcon>
+      </th>
+      <th [pSortableColumn]="'deadline'">
+        Deadline<p-sortIcon [field]="'deadline'"></p-sortIcon>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-job>
+    <tr [pSelectableRow]="job">
+      <td>{{ job.name }}</td>
+      <td>{{ job.customer }}</td>
+      <td>{{ job.date }}</td>
+      <td>{{ job.deadline }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+<div class="info-panel position-bottom">
+  <p i18n="@@job-status-data-count" *ngIf="jobCount">
+    Es {jobCount, plural, =0 {wurde keine Job gefunden} =1 {wurde 1 Job
+    gefunden} other { wurden {{ jobCount }} Jobs gefunden }}
+  </p>
+</div>

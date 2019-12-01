@@ -165,7 +165,7 @@ export class RoleEditComponent implements OnInit, OnDestroy {
   }
 
   private createWriteItem() {
-    this.writeItem = {};
+    // this.writeItem = {};
     this.writeItem['type'] = 'role';
     this.writeItem['name'] = this.roleForm.value.name || '';
     this.writeItem['active'] = this.roleForm.value.active || false;

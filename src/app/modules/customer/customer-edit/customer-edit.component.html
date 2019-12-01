@@ -1,1 +1,324 @@
-<p>customer-edit works!</p>
+<div class="row detail-edit-header">
+  <div class="col-sm-4">
+    <h1 *ngIf="companytName">{{ companytName }}</h1>
+    <h1 *ngIf="!firstName || !lastName" i18n="@@string-new-dataset">
+      Datensatz erstellen
+    </h1>
+  </div>
+  <div class="col-sm-8 text-right">
+    <app-crud-nav
+      [isNew]="isNew"
+      [validForm]="customerForm.valid"
+      [dirtyForm]="customerForm.dirty"
+      [routeNew]="'/company/new'"
+      [editable]="editable"
+      (save)="onSubmit()"
+      (add)="onSubmit()"
+      (edit)="onEdit()"
+      (delete)="onDelete()"
+    ></app-crud-nav>
+  </div>
+</div>
+<form
+  class="form form-horizontal"
+  (ngSubmit)="onSubmit()"
+  #customerForm="ngForm"
+>
+  <input type="hidden" [(ngModel)]="isNew" name="isNew" />
+  <input type="hidden" [(ngModel)]="id" name="_id" />
+  <input type="hidden" [(ngModel)]="rev" name="_rev" />
+  <p-tabView>
+    <p-tabPanel header="Stammdaten">
+      <div class="row">
+        <div class="col-sm-8">
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="Name"
+                required
+                [(ngModel)]="name"
+                name="name"
+                #nameCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-name-required"
+                *ngIf="!nameCheck.valid && nameCheck.touched"
+                >Bitte geben Sie einen Namen ein.</small
+              >
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-9">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="Strasse"
+                required
+                [(ngModel)]="street"
+                name="street"
+                #streetCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-street-required"
+                *ngIf="!streetCheck.valid && streetCheck.touched"
+                >Bitte geben Sie einen Strasse ein.</small
+              >
+            </div>
+            <div class="col-sm-3">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="Nr"
+                required
+                [(ngModel)]="streetNumber"
+                name="streetNumber"
+                #streetNumberCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-streetNumber-required"
+                *ngIf="!streetNumberCheck.valid && streetNumberCheck.touched"
+                >Bitte geben Sie einen Nr ein.</small
+              >
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-3">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="PLZ"
+                required
+                [(ngModel)]="zip"
+                name="zip"
+                #zipCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-zip-required"
+                *ngIf="!zipCheck.valid && zipCheck.touched"
+                >Bitte geben Sie einen PLZ ein.</small
+              >
+            </div>
+            <div class="col-sm-9">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="Ort"
+                required
+                [(ngModel)]="city"
+                name="streetNumber"
+                #cityCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-citytNumber-required"
+                *ngIf="!cityCheck.valid && cityCheck.touched"
+                >Bitte geben Sie einen Ort ein.</small
+              >
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <input
+                type="text"
+                class="form-control"
+                i18n-placeholder
+                placeholder="E-Mail"
+                required
+                email
+                [(ngModel)]="email"
+                name="email"
+                #emailCheck="ngModel"
+                [readOnly]="!editable"
+              />
+              <small
+                class="form-text text-muted"
+                i18n="@@string-email-required"
+                *ngIf="!emailCheck.valid && emailCheck.touched"
+                >Bitte geben Sie eine gültige E-Mail Adresse ein.</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Status</label>
+            <div class="col-sm-10">
+              <p-selectButton
+                [options]="[
+                  {
+                    label: 'aktiv',
+                    value: true
+                  },
+                  {
+                    label: 'gesperrt',
+                    value: false
+                  }
+                ]"
+                name="active"
+                [(ngModel)]="active"
+                [disabled]="!editable"
+              ></p-selectButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Jobs">
+      <p-table
+        #dt
+        [value]="jobs"
+        [paginator]="true"
+        [rows]="13"
+        class="table"
+        selectionMode="single"
+        [(selection)]="selectedJobs"
+        (onRowSelect)="onRowSelect($event)"
+        [globalFilterFields]="['name']"
+        (onFilter)="onFilter($event)"
+      >
+        <ng-template pTemplate="caption">
+          <div style="text-align: center;">
+            <i class="fas fa-search" style="margin:4px 6px 0 0;"></i>
+            <input
+              type="text"
+              pInputText
+              size="50"
+              i18n-placeholder
+              placeholder="Globale Suche"
+              (input)="dt.filterGlobal($event.target.value, 'contains')"
+              style="width:auto"
+            />
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th [pSortableColumn]="'name'">
+              Name
+              <p-sortIcon [field]="'name'"></p-sortIcon>
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-job>
+          <tr [pSelectableRow]="job">
+            <td>{{ job.name }}</td>
+            <td>{{ job._id }}</td>
+            <td></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    <p-tabPanel header="Angebote">
+      <p-table
+        #dt
+        [value]="offers"
+        [paginator]="true"
+        [rows]="13"
+        class="table"
+        selectionMode="single"
+        [(selection)]="selectedOffers"
+        (onRowSelect)="onRowSelect($event)"
+        [globalFilterFields]="['name']"
+        (onFilter)="onFilter($event)"
+      >
+        <ng-template pTemplate="caption">
+          <div style="text-align: center;">
+            <i class="fas fa-search" style="margin:4px 6px 0 0;"></i>
+            <input
+              type="text"
+              pInputText
+              size="50"
+              i18n-placeholder
+              placeholder="Globale Suche"
+              (input)="dt.filterGlobal($event.target.value, 'contains')"
+              style="width:auto"
+            />
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th [pSortableColumn]="'name'">
+              Name
+              <p-sortIcon [field]="'name'"></p-sortIcon>
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-offer>
+          <tr [pSelectableRow]="offer">
+            <td>{{ offer.description }}</td>
+            <td>{{ offer._id }}</td>
+            <td></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+    <p-tabPanel header="Rechnungen">
+      <p-table
+        #dt
+        [value]="invoices"
+        [paginator]="true"
+        [rows]="13"
+        class="table"
+        selectionMode="single"
+        [(selection)]="selectedInvoices"
+        (onRowSelect)="onRowSelect($event)"
+        [globalFilterFields]="['name']"
+        (onFilter)="onFilter($event)"
+      >
+        <ng-template pTemplate="caption">
+          <div style="text-align: center;">
+            <i class="fas fa-search" style="margin:4px 6px 0 0;"></i>
+            <input
+              type="text"
+              pInputText
+              size="50"
+              i18n-placeholder
+              placeholder="Globale Suche"
+              (input)="dt.filterGlobal($event.target.value, 'contains')"
+              style="width:auto"
+            />
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th [pSortableColumn]="'name'">
+              Name
+              <p-sortIcon [field]="'name'"></p-sortIcon>
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-invoice>
+          <tr [pSelectableRow]="offer">
+            <td>{{ invoice.description }}</td>
+            <td>{{ invoice._id }}</td>
+            <td></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
+</form>

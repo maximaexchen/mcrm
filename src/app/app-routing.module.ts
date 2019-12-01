@@ -12,6 +12,18 @@ const routes: Routes = [
     loadChildren: './modules/customer/customer.module#CustomerModule'
   },
   {
+    path: 'job',
+    loadChildren: './modules/job/job.module#JobModule'
+  },
+  {
+    path: 'offer',
+    loadChildren: './modules/offer/offer.module#OfferModule'
+  },
+  {
+    path: 'invoice',
+    loadChildren: './modules/invoice/invoice.module#InvoiceModule'
+  },
+  {
     path: 'search',
     loadChildren: './modules/search/search.module#SearchModule'
   },

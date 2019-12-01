@@ -15,6 +15,7 @@ export class HeaderComponent implements OnInit {
   isCollapsed = false;
   public title = 'CRM';
   public mainmenuItems: MenuItem[] = [];
+  public editMenuItems: MenuItem[] = [];
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -22,47 +23,52 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.initMainMenu();
+    this.initMenu();
   }
 
   /**
    * initialisiert das Haupt-Menü
    */
-  private initMainMenu() {
+  private initMenu() {
     this.mainmenuItems.push({
-      icon: 'fas fa-check-square',
+      icon: 'fas fa-users',
       label: 'Kunden',
       routerLink: 'customer'
     });
     this.mainmenuItems.push({
-      icon: 'fas fa-user',
-      label: 'Benutzer',
-      routerLink: 'user'
+      icon: 'fas fa-file-alt',
+      label: 'Angebote',
+      routerLink: 'offer'
     });
     this.mainmenuItems.push({
-      icon: 'fas fa-link',
-      label: 'Rollen',
-      routerLink: 'role'
+      icon: 'far fa-file-alt',
+      label: 'Rechnungen',
+      routerLink: 'invoice'
+    });
+    this.mainmenuItems.push({
+      icon: 'fas fa-clipboard-list',
+      label: 'Jobs',
+      routerLink: 'job'
+    });
+    this.mainmenuItems.push({
+      icon: 'fas fa-cog',
+      label: '',
+      items: [
+        {
+          icon: 'fas fa-user',
+          label: 'Benutzer',
+          routerLink: 'user'
+        },
+        {
+          icon: 'fas fa-link',
+          label: 'Rollen',
+          routerLink: 'role'
+        }
+      ]
     });
   }
 
   public logout(event: Event) {
     this.authenticationService.logout();
-    /* from(this.authenticationService.logout()).subscribe(
-      res => {
-        console.log('Logout Subscription');
-        console.log(res);
-      },
-      err => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Logout-',
-          detail: 'Es ist ein Fehler aufgetreten!'
-        });
-      },
-      () => {
-        console.log('Logout Callback');
-      }
-    ); */
   }
 }
