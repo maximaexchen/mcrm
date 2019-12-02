@@ -69,6 +69,7 @@ describe('CustomerListComponent', () => {
       ];
       couchDBServiceSpy.getCustomers.and.nextOneTimeWith(fakeCustomers);
     });
+
     When(
       async(() => {
         // @ts-ignore
@@ -111,6 +112,7 @@ describe('CustomerListComponent', () => {
         expect(fixture.componentInstance.customers.length).toBe(1);
       });
     });
+
     describe('EXPECT mocked customers to be correct customer object', () => {
       Then(() => {
         expect(componentUnderTest.customers).toEqual([
@@ -131,10 +133,12 @@ describe('CustomerListComponent', () => {
     Given(() => {
       router = TestBed.get(Router);
     });
+
     When(() => {
       componentUnderTest.showDetail(id);
       fixture.detectChanges();
     });
+
     Then(
       async(() => {
         expect(router.navigate).toHaveBeenCalledWith([
