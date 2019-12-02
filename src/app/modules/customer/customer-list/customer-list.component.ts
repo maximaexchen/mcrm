@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 
 import { CouchDBService } from 'src/app//services/couchDB.service';
 import { Customer } from '../../../models/customer.model';
-import { takeWhile } from 'rxjs/operators';
+import { takeWhile, tap, catchError, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-customer-list',
@@ -17,6 +18,8 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   customers: Customer[] = [];
   selectedUser: Customer;
   customerCount = 0;
+  customers$: Observable<Customer[]>;
+  filteredEntries$: Observable<any>;
 
   constructor(private couchDBService: CouchDBService, private router: Router) {}
 
@@ -38,22 +41,11 @@ export class CustomerListComponent implements OnInit, OnDestroy {
 
   private getCustomers() {
     this.isLoading = false;
-    this.couchDBService
-      .getCustomers()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        res => {
-          this.customers = res;
-          this.customerCount = this.customers.length;
-        },
-        err => {
-          console.log('Error on loading customers');
-        }
-      );
+    this.customers$ = this.couchDBService.getCustomers();
   }
 
   public onRowSelect(event) {
-    this.router.navigate(['../customer/' + event.data._id + '/edit']);
+    this.router.navigate(['../customer/' + event.data[0]._id + '/edit']);
   }
 
   public onFilter(event: any): void {
