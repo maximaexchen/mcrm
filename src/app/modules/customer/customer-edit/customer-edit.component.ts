@@ -85,7 +85,7 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
             this.active = entry['active'];
             this.jobs = entry['jobs'];
             this.offers = entry['offers'];
-            this.invoices = entry['invoices'];
+            this.invoices = entry['invoices '];
 
             console.log();
           });
