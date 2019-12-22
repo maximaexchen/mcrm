@@ -31,7 +31,8 @@ module.exports = function(config) {
         }
       }
     },
-    reporters: ['jasmine-diff', 'mocha'],
+    /* reporters: ['jasmine-diff', 'mocha'], */
+    reporters: ['jasmine-diff', 'progress', 'kjhtml'],
     jasmineDiffReporter: {
       color: {
         expectedBg: 'bgRed',

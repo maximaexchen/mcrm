@@ -1,8 +1,8 @@
 export interface Customer {
   _id: string;
-  _rev: string;
+  _rev?: string;
   type: string;
-  name: string;
+  name?: string;
   street?: string;
   streetNumber?: string;
   zip?: string;

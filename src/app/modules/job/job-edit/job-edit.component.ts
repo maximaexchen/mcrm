@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Job } from '@app/models/job.model';
-import { Roles } from '@app/modules/auth/models/roles.enum';
 import { CouchDBService } from '@app/services/couchDB.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationsService } from '@app/services/notifications.service';

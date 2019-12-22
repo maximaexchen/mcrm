@@ -1,34 +1,56 @@
-import { RouterTestingModule } from '@angular/router/testing';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { OfferEditComponent } from './offer-edit.component';
+import { async, TestBed } from '@angular/core/testing';
+
 import { GeneralModule } from '@app/modules/general.module';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { CoreModule } from '@app/core.module';
+import { RouterTestingModule } from '@angular/router/testing';
+import { SearchModule } from '@app/modules/search/search.module';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { NotificationsService } from '@app/services/notifications.service';
+import { CouchDBService } from '@app/services/couchDB.service';
+import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 
-describe('OfferEditComponent', () => {
-  let component: OfferEditComponent;
-  let fixture: ComponentFixture<OfferEditComponent>;
+describe('CustomerEditComponent', () => {
+  let componentUnderTest: OfferEditComponent;
+  let couchDBServiceSpy: Spy<CouchDBService>;
 
-  beforeEach(async(() => {
+  Given(() => {
     TestBed.configureTestingModule({
-      imports: [
-        CoreModule,
-        GeneralModule,
-        HttpClientTestingModule,
-        RouterTestingModule
-      ],
-      declarations: [OfferEditComponent]
+      imports: [GeneralModule, RouterTestingModule, SearchModule],
+      declarations: [],
+      providers: [
+        OfferEditComponent,
+        {
+          provide: CouchDBService,
+          useValue: createSpyFromClass(CouchDBService)
+        },
+        {
+          provide: MessageService,
+          useValue: createSpyFromClass(MessageService)
+        },
+        {
+          provide: ConfirmationService,
+          useValue: createSpyFromClass(ConfirmationService)
+        },
+        {
+          provide: NotificationsService,
+          useValue: createSpyFromClass(NotificationsService)
+        }
+      ]
     }).compileComponents();
-  }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(OfferEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    componentUnderTest = TestBed.get(OfferEditComponent);
+    couchDBServiceSpy = TestBed.get(CouchDBService);
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    describe('METHOD', () => {
+      Given(() => {});
+
+      When(() => {
+        componentUnderTest.ngOnInit();
+      });
+
+      Then(() => {
+        expect(componentUnderTest).toBeTruthy();
+      });
+    });
   });
 });

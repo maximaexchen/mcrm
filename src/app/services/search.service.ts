@@ -1,5 +1,5 @@
+import { Customer } from './../models/customer.model';
 import { Injectable } from '@angular/core';
-import { NormDocument } from '@app/models';
 import { EnvService } from './env.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -17,7 +17,7 @@ export class SearchService {
     private couchDBService: CouchDBService
   ) {}
 
-  private searchResult = new Subject<NormDocument[]>();
+  private searchResult = new Subject<Customer[]>();
 
   searchResultData = this.searchResult.asObservable();
 

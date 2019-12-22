@@ -8,9 +8,14 @@
             (ngSubmit)="onSubmit()"
             #searchForm="ngForm"
           >
-            <label class="form-label">Herausgeber</label>
+            <h1 class="search-title panel-headline">
+              <span class="fas fa-check-square" style="margin: 0 20px 0 0px; ">
+              </span
+              >Normen
+            </h1>
+            <label class="form-label">Tags</label>
             <div class="document-tags searchbar-tags">
-              <angular2-multiselect
+              <!-- <angular2-multiselect
                 name="tags"
                 [data]="tags"
                 [(ngModel)]="selectedTags"
@@ -30,7 +35,7 @@
                     <label class="{{ item.tagType }}"> {{ item.name }}</label>
                   </ng-template>
                 </c-item>
-              </angular2-multiselect>
+              </angular2-multiselect> -->
             </div>
             <!-- <select
               class="form-control"

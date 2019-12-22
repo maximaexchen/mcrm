@@ -1,9 +1,10 @@
-import { Job } from './../../../models/job.model';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { User } from '@app/models';
-import { CouchDBService } from '@app/services/couchDB.service';
 import { Router } from '@angular/router';
-import { takeWhile } from 'rxjs/operators';
+import { SubSink } from 'SubSink';
+
+import { CouchDBService } from 'src/app//services/couchDB.service';
+import { Observable } from 'rxjs';
+import { Job } from '@app/models/job.model';
 
 @Component({
   selector: 'app-job-list',
@@ -11,67 +12,52 @@ import { takeWhile } from 'rxjs/operators';
   styleUrls: ['./job-list.component.scss']
 })
 export class JobListComponent implements OnInit, OnDestroy {
-  alive = true;
+  private subs = new SubSink();
 
-  jobs: Job[] = [];
-  selectedJob: Job;
+  isLoading = true;
+
+  customers: Job[] = [];
+  selectedUser: Job;
   jobCount = 0;
+  jobs$: Observable<Job[]>;
+  filteredEntries$: Observable<any>;
 
   constructor(private couchDBService: CouchDBService, private router: Router) {}
 
   ngOnInit() {
-    this.couchDBService
-      .setStateUpdate()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        message => {
-          if (message.text === 'user') {
-            this.getJobs();
-          }
-        },
-        err => console.log('Error', err),
-        () => console.log('completed.')
-      );
-
+    this.subs.sink = this.couchDBService.setStateUpdate().subscribe(
+      message => {
+        if (message.text === 'job') {
+          this.isLoading = false;
+          this.getJobs();
+        }
+      },
+      err => {
+        console.error('Error');
+      }
+    );
     this.getJobs();
   }
 
   private getJobs() {
-    this.couchDBService
-      .getJobs()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        res => {
-          this.jobs = res;
-          this.jobCount = this.jobs.length;
-        },
-        err => {
-          console.log('Error on loading jobs');
-        }
-      );
+    this.isLoading = false;
+    this.jobs$ = this.couchDBService.getJobs();
   }
 
   public onRowSelect(event) {
-    console.log('onRowSelect');
-    console.log(event);
-    this.gotoEdit(event.data._id);
+    this.router.navigate(['../job/' + event.data[0]._id + '/edit']);
   }
 
   public onFilter(event: any): void {
+    console.log(event);
     this.jobCount = event.filteredValue.length;
   }
 
   public showDetail(id: string) {
-    this.gotoEdit(id);
-  }
-
-  private gotoEdit(id: string) {
-    console.log('gotoEdit');
-    console.log('id');
     this.router.navigate(['../job/' + id + '/edit']);
   }
 
   ngOnDestroy() {
-    this.alive = false;
+    this.subs.unsubscribe();
   }
 }

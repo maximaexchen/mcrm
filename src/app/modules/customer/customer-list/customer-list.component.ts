@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { SubSink } from 'SubSink';
 
 import { CouchDBService } from 'src/app//services/couchDB.service';
 import { Customer } from '../../../models/customer.model';
-import { takeWhile, tap, catchError, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 
 @Component({
@@ -12,7 +12,8 @@ import { Observable, of } from 'rxjs';
   styleUrls: ['./customer-list.component.scss']
 })
 export class CustomerListComponent implements OnInit, OnDestroy {
-  alive = true;
+  private subs = new SubSink();
+
   isLoading = true;
 
   customers: Customer[] = [];
@@ -24,18 +25,17 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   constructor(private couchDBService: CouchDBService, private router: Router) {}
 
   ngOnInit() {
-    this.couchDBService
-      .setStateUpdate()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        message => {
-          if (message.text === 'customer') {
-            this.getCustomers();
-          }
-        },
-        err => console.log('Error', err),
-        () => console.log('completed.')
-      );
+    this.subs.sink = this.couchDBService.setStateUpdate().subscribe(
+      message => {
+        if (message.text === 'customer') {
+          this.isLoading = false;
+          this.getCustomers();
+        }
+      },
+      err => {
+        console.error('Error');
+      }
+    );
     this.getCustomers();
   }
 
@@ -49,6 +49,7 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   }
 
   public onFilter(event: any): void {
+    console.log(event);
     this.customerCount = event.filteredValue.length;
   }
 
@@ -57,6 +58,6 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.alive = false;
+    this.subs.unsubscribe();
   }
 }

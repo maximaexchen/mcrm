@@ -1,4 +1,4 @@
-export interface InvoiceProperties {
+export interface Invoice {
   _id?: string;
   _rev?: string;
   type?: string;
@@ -6,14 +6,4 @@ export interface InvoiceProperties {
   date?: Date;
   deadline?: Date;
   customer?: string;
-}
-
-export class Invoice {
-  constructor(kwArgs: InvoiceProperties = {}) {
-    for (const key in kwArgs) {
-      if (kwArgs[key]) {
-        this[key] = kwArgs[key];
-      }
-    }
-  }
 }

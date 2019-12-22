@@ -1,31 +1,56 @@
-import { MessageService } from 'primeng/components/common/messageservice';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, TestBed } from '@angular/core/testing';
 
 import { InvoiceEditComponent } from './invoice-edit.component';
 import { GeneralModule } from '@app/modules/general.module';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SearchModule } from '@app/modules/search/search.module';
-import { ConfirmationService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { NotificationsService } from '@app/services/notifications.service';
+import { CouchDBService } from '@app/services/couchDB.service';
+import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 
-describe('InvoiceEditComponent', () => {
-  let component: InvoiceEditComponent;
-  let fixture: ComponentFixture<InvoiceEditComponent>;
+describe('CustomerEditComponent', () => {
+  let componentUnderTest: InvoiceEditComponent;
+  let couchDBServiceSpy: Spy<CouchDBService>;
 
-  beforeEach(async(() => {
+  Given(() => {
     TestBed.configureTestingModule({
       imports: [GeneralModule, RouterTestingModule, SearchModule],
-      declarations: [InvoiceEditComponent],
-      providers: [MessageService, ConfirmationService]
+      declarations: [],
+      providers: [
+        InvoiceEditComponent,
+        {
+          provide: CouchDBService,
+          useValue: createSpyFromClass(CouchDBService)
+        },
+        {
+          provide: MessageService,
+          useValue: createSpyFromClass(MessageService)
+        },
+        {
+          provide: ConfirmationService,
+          useValue: createSpyFromClass(ConfirmationService)
+        },
+        {
+          provide: NotificationsService,
+          useValue: createSpyFromClass(NotificationsService)
+        }
+      ]
     }).compileComponents();
-  }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(InvoiceEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    componentUnderTest = TestBed.get(InvoiceEditComponent);
+    couchDBServiceSpy = TestBed.get(CouchDBService);
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    describe('METHOD', () => {
+      Given(() => {});
+
+      When(() => {
+        componentUnderTest.ngOnInit();
+      });
+
+      Then(() => {
+        expect(componentUnderTest).toBeTruthy();
+      });
+    });
   });
 });

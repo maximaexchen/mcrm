@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { CustomerEditComponent } from './customer-edit.component';
 import { GeneralModule } from '@app/modules/general.module';
@@ -7,31 +7,46 @@ import { SearchModule } from '@app/modules/search/search.module';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { NotificationsService } from '@app/services/notifications.service';
 import { CouchDBService } from '@app/services/couchDB.service';
+import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 
 describe('CustomerEditComponent', () => {
-  let component: CustomerEditComponent;
-  let fixture: ComponentFixture<CustomerEditComponent>;
+  let componentUnderTest: CustomerEditComponent;
+  let couchDBServiceSpy: Spy<CouchDBService>;
 
-  beforeEach(async(() => {
+  Given(() => {
     TestBed.configureTestingModule({
       imports: [GeneralModule, RouterTestingModule, SearchModule],
-      declarations: [CustomerEditComponent],
+      declarations: [],
       providers: [
-        MessageService,
-        ConfirmationService,
-        NotificationsService,
-        CouchDBService
+        CustomerEditComponent,
+        {
+          provide: CouchDBService,
+          useValue: createSpyFromClass(CouchDBService)
+        },
+        {
+          provide: MessageService,
+          useValue: createSpyFromClass(MessageService)
+        },
+        {
+          provide: ConfirmationService,
+          useValue: createSpyFromClass(ConfirmationService)
+        },
+        {
+          provide: NotificationsService,
+          useValue: createSpyFromClass(NotificationsService)
+        }
       ]
     }).compileComponents();
-  }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CustomerEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    componentUnderTest = TestBed.get(CustomerEditComponent);
+    couchDBServiceSpy = TestBed.get(CouchDBService);
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    describe('METHOD', () => {
+      Given(() => {});
+
+      When(() => {});
+
+      Then(() => {});
+    });
   });
 });

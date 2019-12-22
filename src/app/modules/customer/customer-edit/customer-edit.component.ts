@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
 import { ConfirmationService } from 'primeng/api';
-import { takeWhile } from 'rxjs/operators';
+import { SubSink } from 'SubSink';
+import uuidv4 from '@bundled-es-modules/uuid/v4.js';
 
 import { CouchDBService } from '@services/couchDB.service';
 import { NotificationsService } from '@services/notifications.service';
@@ -20,30 +21,17 @@ import { Invoice } from '@app/models/invoice.model';
 export class CustomerEditComponent implements OnInit, OnDestroy {
   @ViewChild('customerForm', { static: false }) customerForm: NgForm;
 
-  alive = true;
+  private subs = new SubSink();
   editable = false;
 
   formTitle: string;
   isNew = true; // 1 = new - 2 = update
 
   customer: Customer;
-  id: string;
-  rev: string;
-  type: string;
 
   jobs: Job[] = [];
   offers: Offer[] = [];
   invoices: Invoice[] = [];
-
-  name: string;
-  street: string;
-  streetNumber: string;
-  zip: string;
-  city: string;
-  telephone: string;
-  email: string;
-  web: string;
-  active = 0;
 
   constructor(
     private couchDBService: CouchDBService,
@@ -60,41 +48,26 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
   }
 
   private getCustomer() {
-    this.route.params.pipe(takeWhile(() => this.alive)).subscribe(results => {
+    this.subs.sink = this.route.params.subscribe(results => {
       // check if we are updating
       if (results['id']) {
         console.log('Edit mode');
         this.isNew = false;
         this.formTitle = 'Customer bearbeiten';
 
-        this.couchDBService
+        this.subs.sink = this.couchDBService
           .fetchEntry('/' + results['id'])
-          .pipe(takeWhile(() => this.alive))
-          .subscribe(entry => {
-            this.id = entry['_id'];
-            this.rev = entry['_rev'];
-            this.type = 'customer';
-            this.name = entry['name'];
-            this.street = entry['street'];
-            this.streetNumber = entry['streetNumber'];
-            this.zip = entry['zip'];
-            this.city = entry['city'];
-            this.telephone = entry['telephone'];
-            this.email = entry['email'];
-            this.web = entry['web'];
-            this.active = entry['active'];
-            this.jobs = entry['jobs'];
-            this.offers = entry['offers'];
-            this.invoices = entry['invoices '];
-
-            console.log();
+          .subscribe(customer => {
+            this.customer = customer;
+            console.log(this.customer);
           });
       } else {
         console.log('New mode');
         this.formTitle = 'Neuen Kunden anlegen';
-        this.jobs = [];
-        this.invoices = [];
-        this.offers = [];
+        this.customer = {
+          _id: uuidv4(),
+          type: 'customer'
+        };
       }
     });
   }
@@ -110,11 +83,10 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
   }
 
   private onUpdateCustomer(): void {
-    this.createWriteItem();
+    this.createJob();
 
-    this.couchDBService
+    this.subs.sink = this.couchDBService
       .updateEntry(this.customer, this.customerForm.value._id)
-      .pipe(takeWhile(() => this.alive))
       .subscribe(
         result => {
           // Inform about Database change.
@@ -129,11 +101,10 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
   }
 
   private onCreateCustomer(): void {
-    this.createWriteItem();
+    this.createJob();
 
-    this.couchDBService
+    this.subs.sink = this.couchDBService
       .writeEntry(this.customer)
-      .pipe(takeWhile(() => this.alive))
       .subscribe(result => {
         this.sendStateUpdate();
       });
@@ -141,11 +112,10 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
 
   public onDelete(): void {
     this.confirmationService.confirm({
-      message: 'Sie wollen den Datensatz ' + this.name + '?',
+      message: 'Sie wollen den Datensatz ' + this.customer.name + '?',
       accept: () => {
-        this.couchDBService
-          .deleteEntry(this.id, this.rev)
-          .pipe(takeWhile(() => this.alive))
+        this.subs.sink = this.couchDBService
+          .deleteEntry(this.customer._id, this.customer._rev)
           .subscribe(
             res => {
               this.sendStateUpdate();
@@ -160,8 +130,8 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private createWriteItem() {
-    this.customer.type = 'user';
+  private createJob() {
+    this.customer.type = 'customer';
     this.customer.name = this.customerForm.value.name || '';
     this.customer.street = this.customerForm.value.street || '';
     this.customer.streetNumber = this.customerForm.value.streetNumber || '';
@@ -197,11 +167,11 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
     this.couchDBService.sendStateUpdate('user');
   }
 
-  public ngOnDestroy(): void {
-    this.alive = false;
-  }
-
   public onEdit() {
     this.editable = true;
+  }
+
+  public ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

@@ -1,7 +1,7 @@
 import { CouchDBService } from 'src/app/services/couchDB.service';
 import { GeneralModule } from './../../general.module';
-import { OfferListComponent } from './offer-list.component';
-import { Offer } from './../../../models/offer.model';
+import { JobListComponent } from './job-list.component';
+import { Job } from './../../../models/job.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
@@ -9,10 +9,10 @@ import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 import { of, Subject, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
-describe('OfferListComponent', () => {
-  let componentUnderTest: OfferListComponent;
+describe('JobListComponent', () => {
+  let componentUnderTest: JobListComponent;
   let couchDBServiceSpy: Spy<CouchDBService>;
-  let fakeOffers: Offer[];
+  let fakeJobs: Job[];
   let router = {
     navigate: jasmine.createSpy('navigate') // to spy on the url that has been routed
   };
@@ -22,7 +22,7 @@ describe('OfferListComponent', () => {
       imports: [GeneralModule, RouterTestingModule],
       declarations: [],
       providers: [
-        OfferListComponent,
+        JobListComponent,
         {
           provide: CouchDBService,
           useValue: createSpyFromClass(CouchDBService)
@@ -31,10 +31,10 @@ describe('OfferListComponent', () => {
       ]
     }).compileComponents();
 
-    componentUnderTest = TestBed.get(OfferListComponent);
+    componentUnderTest = TestBed.get(JobListComponent);
     couchDBServiceSpy = TestBed.get(CouchDBService);
 
-    fakeOffers = undefined;
+    fakeJobs = undefined;
   });
 
   describe('INIT', () => {
@@ -43,7 +43,7 @@ describe('OfferListComponent', () => {
       // @ts-ignores
       spyOn(componentUnderTest, 'ngOnInit').and.callThrough();
       // @ts-ignore
-      spyOn(componentUnderTest, 'getOffers');
+      spyOn(componentUnderTest, 'getJobs');
     });
 
     When(
@@ -63,14 +63,14 @@ describe('OfferListComponent', () => {
       Then(() => {
         expect(componentUnderTest).toBeTruthy();
         // @ts-ignore
-        expect(componentUnderTest.getOffers).toHaveBeenCalled();
+        expect(componentUnderTest.getJobs).toHaveBeenCalled();
       });
     });
 
-    describe('GIVEN Obeservable sucess THEN call getOffers', () => {
+    describe('GIVEN Obeservable sucess THEN call getJobs', () => {
       Given(() => {
         const message = {
-          text: 'offer'
+          text: 'job'
         };
 
         // @ts-ignores
@@ -79,12 +79,12 @@ describe('OfferListComponent', () => {
       });
       Then(() => {
         couchDBServiceSpy.setStateUpdate().subscribe(res => {
-          if (res.text === 'offer') {
+          if (res.text === 'job') {
             expect(componentUnderTest.isLoading).toBe(false);
             // @ts-ignores
-            expect(componentUnderTest.getOffers).toHaveBeenCalled();
+            expect(componentUnderTest.getJobs).toHaveBeenCalled();
           }
-          expect(res).toEqual({ text: 'offer' });
+          expect(res).toEqual({ text: 'job' });
         });
       });
     });
@@ -116,32 +116,32 @@ describe('OfferListComponent', () => {
     });
   });
 
-  describe('METHOD: getOffers() offers to be greater than 0', () => {
+  describe('METHOD: getJobs() jobs to be greater than 0', () => {
     Given(() => {
-      fakeOffers = [
+      fakeJobs = [
         {
           _id: '1',
           _rev: '1',
-          type: 'offer',
+          type: 'job',
           name: 'Customer name'
         }
       ];
-      couchDBServiceSpy.getOffers.and.nextOneTimeWith(fakeOffers);
+      couchDBServiceSpy.getJobs.and.nextOneTimeWith(fakeJobs);
       // @ts-ignore
-      spyOn(componentUnderTest, 'getOffers').and.callThrough();
+      spyOn(componentUnderTest, 'getJobs').and.callThrough();
     });
 
     When(
       fakeAsync(() => {
         // @ts-ignore
-        componentUnderTest.getOffers();
+        componentUnderTest.getJobs();
         tick();
       })
     );
 
     Then(() => {
-      componentUnderTest.offers$.subscribe(res => {
-        expect(res).toEqual(fakeOffers);
+      componentUnderTest.jobs$.subscribe(res => {
+        expect(res).toEqual(fakeJobs);
       });
     });
   });
@@ -163,7 +163,7 @@ describe('OfferListComponent', () => {
     Then(
       fakeAsync(() => {
         expect(router.navigate).toHaveBeenCalledWith([
-          '../offer/' + id + '/edit'
+          '../job/' + id + '/edit'
         ]);
       })
     );
@@ -191,7 +191,7 @@ describe('OfferListComponent', () => {
     );
 
     Then(() => {
-      expect(router.navigate).toHaveBeenCalledWith(['../offer/1/edit']);
+      expect(router.navigate).toHaveBeenCalledWith(['../job/1/edit']);
     });
   });
 
@@ -206,7 +206,7 @@ describe('OfferListComponent', () => {
           {
             _id: '9d5e29d54d7766924e3ab4251f000938',
             _rev: '13-4214279f8cf44978569a629246ab2c53',
-            type: 'offer',
+            type: 'job',
             name: 'NeuLand Werbeagentur'
           }
         ]
@@ -215,7 +215,7 @@ describe('OfferListComponent', () => {
     });
 
     Then(() => {
-      expect(componentUnderTest.offerCount).toBe(1);
+      expect(componentUnderTest.jobCount).toBe(1);
     });
   });
 

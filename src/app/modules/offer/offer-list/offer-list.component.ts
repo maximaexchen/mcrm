@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Offer } from '@app/models/offer.model';
-import { CouchDBService } from '@app/services/couchDB.service';
 import { Router } from '@angular/router';
-import { takeWhile } from 'rxjs/operators';
+import { SubSink } from 'SubSink';
+
+import { CouchDBService } from 'src/app//services/couchDB.service';
+import { Observable } from 'rxjs';
+import { Offer } from '@app/models';
 
 @Component({
   selector: 'app-offer-list',
@@ -10,52 +12,44 @@ import { takeWhile } from 'rxjs/operators';
   styleUrls: ['./offer-list.component.scss']
 })
 export class OfferListComponent implements OnInit, OnDestroy {
-  alive = true;
+  private subs = new SubSink();
+
+  isLoading = true;
 
   offers: Offer[] = [];
-  selectedOffers: Offer;
+  selectedUser: Offer;
   offerCount = 0;
+  offers$: Observable<Offer[]>;
+  filteredEntries$: Observable<any>;
 
   constructor(private couchDBService: CouchDBService, private router: Router) {}
 
   ngOnInit() {
-    this.couchDBService
-      .setStateUpdate()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        message => {
-          if (message.text === 'offer') {
-            this.getOffers();
-          }
-        },
-        err => console.log('Error', err),
-        () => console.log('completed.')
-      );
-
+    this.subs.sink = this.couchDBService.setStateUpdate().subscribe(
+      message => {
+        if (message.text === 'offer') {
+          this.isLoading = false;
+          this.getOffers();
+        }
+      },
+      err => {
+        console.error('Error');
+      }
+    );
     this.getOffers();
   }
 
   private getOffers() {
-    this.couchDBService
-      .getOffers()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(
-        res => {
-          this.offers = res;
-          this.offerCount = this.offers.length;
-        },
-        err => {
-          console.log('Error on loading offers');
-        }
-      );
+    this.isLoading = false;
+    this.offers$ = this.couchDBService.getOffers();
   }
 
   public onRowSelect(event) {
-    console.log(event.data);
-    this.router.navigate(['../offer/' + event.data._id + '/edit']);
+    this.router.navigate(['../offer/' + event.data[0]._id + '/edit']);
   }
 
   public onFilter(event: any): void {
+    console.log(event);
     this.offerCount = event.filteredValue.length;
   }
 
@@ -64,6 +58,6 @@ export class OfferListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.alive = false;
+    this.subs.unsubscribe();
   }
 }

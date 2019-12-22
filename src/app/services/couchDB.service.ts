@@ -1,6 +1,5 @@
 import { Offer } from './../models/offer.model';
 import { Invoice } from './../models/invoice.model';
-import { User } from './../models/user.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -10,7 +9,6 @@ import { Observable, Subject } from 'rxjs';
 import { EnvService } from './env.service';
 import { Job } from '@app/models/job.model';
 import { Customer } from '@app/models/customer.model';
-import { Role } from '@app/models';
 
 @Injectable({ providedIn: 'root' })
 export class CouchDBService {
@@ -64,10 +62,6 @@ export class CouchDBService {
     );
   }
 
-  public getUsers(): Observable<User[]> {
-    return this.fetchEntries('/_design/mcrm/_view/all-users?include_docs=true');
-  }
-
   public getJobs(): Observable<Job[]> {
     return this.fetchEntries('/_design/mcrm/_view/all-jobs?include_docs=true');
   }
@@ -98,10 +92,6 @@ export class CouchDBService {
 
   public search(object: any): Observable<any> {
     return this.http.post(this.dbRequest + '/_find', object);
-  }
-
-  public getRoles(): Observable<Role[]> {
-    return this.fetchEntries('/_design/mcrm/_view/all-roles?include_docs=true');
   }
 
   public sendStateUpdate(message: string) {

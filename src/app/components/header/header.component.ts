@@ -4,7 +4,6 @@ import { from } from 'rxjs';
 import { MenuItem } from 'primeng/components/common/api';
 import { MessageService } from 'primeng/components/common/messageservice';
 
-import { AuthenticationService } from '@app/modules/auth/services/authentication.service';
 import { CouchDBService } from 'src/app/services/couchDB.service';
 @Component({
   selector: 'app-header',
@@ -17,10 +16,7 @@ export class HeaderComponent implements OnInit {
   public mainmenuItems: MenuItem[] = [];
   public editMenuItems: MenuItem[] = [];
 
-  constructor(
-    private authenticationService: AuthenticationService,
-    private messageService: MessageService
-  ) {}
+  constructor(private messageService: MessageService) {}
 
   ngOnInit() {
     this.initMenu();
@@ -50,25 +46,5 @@ export class HeaderComponent implements OnInit {
       label: 'Jobs',
       routerLink: 'job'
     });
-    this.mainmenuItems.push({
-      icon: 'fas fa-cog',
-      label: '',
-      items: [
-        {
-          icon: 'fas fa-user',
-          label: 'Benutzer',
-          routerLink: 'user'
-        },
-        {
-          icon: 'fas fa-link',
-          label: 'Rollen',
-          routerLink: 'role'
-        }
-      ]
-    });
-  }
-
-  public logout(event: Event) {
-    this.authenticationService.logout();
   }
 }

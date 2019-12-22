@@ -26,14 +26,6 @@ const routes: Routes = [
   {
     path: 'search',
     loadChildren: './modules/search/search.module#SearchModule'
-  },
-  {
-    path: 'user',
-    loadChildren: './modules/user/user.module#UserModule'
-  },
-  {
-    path: 'role',
-    loadChildren: './modules/role/role.module#RoleModule'
   }
 ];
 
