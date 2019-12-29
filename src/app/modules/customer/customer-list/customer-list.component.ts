@@ -4,7 +4,7 @@ import { SubSink } from 'SubSink';
 
 import { CouchDBService } from 'src/app//services/couchDB.service';
 import { Customer } from '../../../models/customer.model';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-customer-list',
@@ -45,11 +45,10 @@ export class CustomerListComponent implements OnInit, OnDestroy {
   }
 
   public onRowSelect(event) {
-    this.router.navigate(['../customer/' + event.data[0]._id + '/edit']);
+    this.router.navigate(['../customer/' + event.data._id + '/edit']);
   }
 
   public onFilter(event: any): void {
-    console.log(event);
     this.customerCount = event.filteredValue.length;
   }
 

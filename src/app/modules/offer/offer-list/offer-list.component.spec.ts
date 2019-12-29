@@ -153,20 +153,15 @@ describe('OfferListComponent', () => {
       router = TestBed.get(Router);
     });
 
-    When(
-      fakeAsync(() => {
-        componentUnderTest.showDetail(id);
-        tick();
-      })
-    );
+    When(() => {
+      componentUnderTest.showDetail(id);
+    });
 
-    Then(
-      fakeAsync(() => {
-        expect(router.navigate).toHaveBeenCalledWith([
-          '../offer/' + id + '/edit'
-        ]);
-      })
-    );
+    Then(() => {
+      expect(router.navigate).toHaveBeenCalledWith([
+        '../offer/' + id + '/edit'
+      ]);
+    });
   });
 
   describe('METHOD: onRowSelect(event)', () => {
@@ -176,19 +171,16 @@ describe('OfferListComponent', () => {
       spyOn(componentUnderTest, 'onRowSelect').and.callThrough();
     });
 
-    When(
-      fakeAsync(() => {
-        const event = {
-          data: [
-            {
-              _id: '1'
-            }
-          ]
-        };
-        componentUnderTest.onRowSelect(event);
-        tick();
-      })
-    );
+    When(() => {
+      const event = {
+        data: [
+          {
+            _id: '1'
+          }
+        ]
+      };
+      componentUnderTest.onRowSelect(event);
+    });
 
     Then(() => {
       expect(router.navigate).toHaveBeenCalledWith(['../offer/1/edit']);

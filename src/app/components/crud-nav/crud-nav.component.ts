@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./crud-nav.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CrudNavComponent implements OnInit {
+export class CrudNavComponent {
   @Input() form: any;
   @Input() isNew: string;
   @Input() routeNew: string;
@@ -29,8 +29,6 @@ export class CrudNavComponent implements OnInit {
   @Output() delete = new EventEmitter();
 
   constructor(private router: Router) {}
-
-  ngOnInit() {}
 
   public onSubmit() {
     this.save.emit('CrudNav Submit');

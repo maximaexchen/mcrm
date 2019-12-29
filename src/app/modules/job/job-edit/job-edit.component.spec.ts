@@ -1,4 +1,5 @@
-import { CustomerEditComponent } from './customer-edit.component';
+import { JobEditComponent } from './job-edit.component';
+
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
@@ -7,16 +8,16 @@ import { CouchDBService } from '@app/services/couchDB.service';
 import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 import { of, Subject, throwError } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Customer } from '@app/models';
+import { Job } from '@app/models';
 import { MessageService, ConfirmationService, Confirmation } from 'primeng/api';
 import { NotificationsService } from '@app/services/notifications.service';
 
-describe('CustomerEditComponent', () => {
-  let componentUnderTest: CustomerEditComponent;
+describe('JobEditComponent', () => {
+  let componentUnderTest: JobEditComponent;
   let couchDBServiceSpy: Spy<CouchDBService>;
   let confirmationServiceSpy: Spy<ConfirmationService>;
   let confirmationService: ConfirmationService;
-  let fakeCustomer: Customer;
+  let fakeJob: Job;
   let router = {
     navigate: jasmine.createSpy('navigate') // to spy on the url that has been routed
   };
@@ -37,7 +38,7 @@ describe('CustomerEditComponent', () => {
       imports: [GeneralModule, RouterTestingModule],
       declarations: [],
       providers: [
-        CustomerEditComponent,
+        JobEditComponent,
         {
           provide: CouchDBService,
           useValue: createSpyFromClass(CouchDBService)
@@ -60,20 +61,20 @@ describe('CustomerEditComponent', () => {
       ]
     }).compileComponents();
 
-    componentUnderTest = TestBed.get(CustomerEditComponent);
+    componentUnderTest = TestBed.get(JobEditComponent);
     couchDBServiceSpy = TestBed.get(CouchDBService);
     activatedRoute = TestBed.get(ActivatedRoute);
     confirmationServiceSpy = TestBed.get(ConfirmationService);
     confirmationService = new ConfirmationService();
 
-    fakeCustomer = undefined;
+    fakeJob = undefined;
   });
 
   describe('INIT', () => {
     Given(() => {
-      fakeCustomer = {
+      fakeJob = {
         _id: '1',
-        type: 'customer',
+        type: 'job',
         name: 'AAA'
       };
     });
@@ -98,49 +99,49 @@ describe('CustomerEditComponent', () => {
       });
     });
 
-    describe('GIVEN activatedRoute params THEN call editCustomer', () => {
+    describe('GIVEN activatedRoute params THEN call editJob', () => {
       Given(() => {
         activatedRoute.params = of({ id: 2 });
         // @ts-ignore
-        spyOn(componentUnderTest, 'editCustomer');
+        spyOn(componentUnderTest, 'editJob');
       });
       Then(() => {
         // @ts-ignore
-        expect(componentUnderTest.editCustomer).toHaveBeenCalled();
+        expect(componentUnderTest.editJob).toHaveBeenCalled();
       });
     });
 
-    describe('GIVEN empty activatedRoute params THEN call newCustomer', () => {
+    describe('GIVEN empty activatedRoute params THEN call newJob', () => {
       Given(() => {
         activatedRoute.params = of({});
         // @ts-ignore
-        spyOn(componentUnderTest, 'newCustomer');
+        spyOn(componentUnderTest, 'newJob');
       });
       Then(() => {
         // @ts-ignore
-        expect(componentUnderTest.newCustomer).toHaveBeenCalled();
+        expect(componentUnderTest.newJob).toHaveBeenCalled();
       });
     });
   });
 
-  describe('METHOD editCustomer', () => {
+  describe('METHOD editJob', () => {
     Given(() => {
       id = '1';
-      fakeCustomer = {
+      fakeJob = {
         _id: '2',
         _rev: '1',
-        type: 'customer',
+        type: 'job',
         name: 'AAA'
       };
-      couchDBServiceSpy.fetchEntry.and.nextOneTimeWith(fakeCustomer);
+      couchDBServiceSpy.fetchEntry.and.nextOneTimeWith(fakeJob);
       // @ts-ignore
-      spyOn(componentUnderTest, 'editCustomer').and.callThrough();
+      spyOn(componentUnderTest, 'editJob').and.callThrough();
     });
 
     When(
       fakeAsync(() => {
         // @ts-ignore
-        componentUnderTest.editCustomer(id);
+        componentUnderTest.editJob(id);
         tick();
       })
     );
@@ -177,36 +178,35 @@ describe('CustomerEditComponent', () => {
         // @ts-ignore
         couchDBServiceSpy.fetchEntry
           .mustBeCalledWith('/' + id)
-          .nextOneTimeWith(fakeCustomer);
+          .nextOneTimeWith(fakeJob);
       });
 
       Then(() => {
-        expect(componentUnderTest.customer).toEqual(fakeCustomer);
+        expect(componentUnderTest.job).toEqual(fakeJob);
       });
     });
   });
 
-  describe('METHOD newCustomer', () => {
+  describe('METHOD newJob', () => {
     Given(() => {
       componentUnderTest.formTitle = 'dd';
       componentUnderTest.isNew = false;
       componentUnderTest.editable = false;
 
       // @ts-ignore
-      spyOn(componentUnderTest, 'newCustomer').and.callThrough();
+      spyOn(componentUnderTest, 'newJob').and.callThrough();
     });
 
     When(() => {
       // @ts-ignore
-      componentUnderTest.newCustomer();
+      componentUnderTest.newJob();
     });
 
     Then(() => {
       expect(componentUnderTest.formTitle).toEqual('Neuen Kunden anlegen');
       expect(componentUnderTest.isNew).toBe(true);
       expect(componentUnderTest.editable).toBe(true);
-      expect(componentUnderTest.customer.type).toEqual('customer');
-      expect(componentUnderTest.customer.active).toBe(true);
+      expect(componentUnderTest.job.type).toEqual('job');
     });
   });
 
@@ -225,12 +225,12 @@ describe('CustomerEditComponent', () => {
       Given(() => {
         componentUnderTest.isNew = true;
         // @ts-ignore
-        spyOn(componentUnderTest, 'saveCustomer');
+        spyOn(componentUnderTest, 'saveJob');
       });
 
       Then(() => {
         // @ts-ignore
-        expect(componentUnderTest.saveCustomer).toHaveBeenCalled();
+        expect(componentUnderTest.saveJob).toHaveBeenCalled();
       });
     });
 
@@ -238,39 +238,39 @@ describe('CustomerEditComponent', () => {
       Given(() => {
         componentUnderTest.isNew = false;
         // @ts-ignore
-        spyOn(componentUnderTest, 'updateCustomer');
+        spyOn(componentUnderTest, 'updateJob');
       });
 
       Then(() => {
         // @ts-ignore
-        expect(componentUnderTest.updateCustomer).toHaveBeenCalled();
+        expect(componentUnderTest.updateJob).toHaveBeenCalled();
       });
     });
   });
 
-  describe('METHOD updateCustomer', () => {
+  describe('METHOD updateJob', () => {
     Given(() => {
-      fakeCustomer = {
+      fakeJob = {
         _id: '1',
-        type: 'customer',
+        type: 'job',
         name: 'AAA'
       };
-      componentUnderTest.customer = fakeCustomer;
-      componentUnderTest.customer._id = '1';
+      componentUnderTest.job = fakeJob;
+      componentUnderTest.job._id = '1';
       // @ts-ignore
       spyOn(componentUnderTest, 'sendStateUpdate');
     });
 
-    describe('Given customer THEN success', () => {
+    describe('Given job THEN success', () => {
       Given(() => {
         // @ts-ignore
-        couchDBServiceSpy.updateEntry.and.returnValue(of(fakeCustomer));
+        couchDBServiceSpy.updateEntry.and.returnValue(of(fakeJob));
       });
 
       When(
         fakeAsync(() => {
           // @ts-ignore
-          componentUnderTest.updateCustomer();
+          componentUnderTest.updateJob();
           tick();
         })
       );
@@ -281,7 +281,7 @@ describe('CustomerEditComponent', () => {
       });
     });
 
-    describe('Given customer THEN error', () => {
+    describe('Given job THEN error', () => {
       Given(() => {
         const testError = {
           message: 'Test 404 error'
@@ -295,7 +295,7 @@ describe('CustomerEditComponent', () => {
       When(
         fakeAsync(() => {
           // @ts-ignore
-          componentUnderTest.updateCustomer();
+          componentUnderTest.updateJob();
           tick();
         })
       );
@@ -324,10 +324,10 @@ describe('CustomerEditComponent', () => {
     });
   });
 
-  describe('METHOD saveCustomer', () => {
+  describe('METHOD saveJob', () => {
     Given(() => {
       // @ts-ignore
-      spyOn(componentUnderTest, 'saveCustomer').and.callThrough();
+      spyOn(componentUnderTest, 'saveJob').and.callThrough();
       // @ts-ignore
       spyOn(componentUnderTest, 'sendStateUpdate');
       // @ts-ignore
@@ -337,15 +337,15 @@ describe('CustomerEditComponent', () => {
     When(
       fakeAsync(() => {
         // @ts-ignore
-        componentUnderTest.saveCustomer();
+        componentUnderTest.saveJob();
         tick();
       })
     );
 
-    describe('GIVEN customer THEN save success', () => {
+    describe('GIVEN job THEN save success', () => {
       Given(() => {
         // @ts-ignore
-        couchDBServiceSpy.writeEntry.and.nextOneTimeWith(fakeCustomer);
+        couchDBServiceSpy.writeEntry.and.nextOneTimeWith(fakeJob);
       });
 
       Then(() => {
@@ -375,26 +375,26 @@ describe('CustomerEditComponent', () => {
     });
   });
 
-  describe('METHOD deleteCustomer', () => {
+  describe('METHOD deleteJob', () => {
     Given(() => {
-      fakeCustomer = {
+      fakeJob = {
         _id: '1',
         _rev: '1',
-        type: 'customer',
+        type: 'job',
         name: 'AAA'
       };
 
       confirmation = {
-        message: 'Sie wollen den Datensatz ' + fakeCustomer.name + '?',
+        message: 'Sie wollen den Datensatz ' + fakeJob.name + '?',
         accept: () => console.log('accept in conf')
       };
 
       confirmationService = new ConfirmationService();
 
-      componentUnderTest.customer = fakeCustomer;
+      componentUnderTest.job = fakeJob;
 
       // @ts-ignore
-      spyOn(componentUnderTest, 'deleteCustomer').and.callThrough();
+      spyOn(componentUnderTest, 'deleteJob').and.callThrough();
       spyOn(confirmationService, 'confirm');
       /* spyOn(confirmationService, 'confirm').and.callFake(
         (confirmation: Confirmation) => {
@@ -414,12 +414,12 @@ describe('CustomerEditComponent', () => {
     When(
       fakeAsync(() => {
         // @ts-ignore
-        componentUnderTest.deleteCustomer();
+        componentUnderTest.deleteJob();
         tick();
       })
     );
 
-    describe('GIVEN customer THEN delete customer', () => {
+    describe('GIVEN job THEN delete job', () => {
       Given(
         fakeAsync(() => {
           // @ts-ignore
@@ -433,13 +433,13 @@ describe('CustomerEditComponent', () => {
           tick();
 
           couchDBServiceSpy.deleteEntry
-            .calledWith(fakeCustomer, fakeCustomer._id)
-            .nextOneTimeWith(fakeCustomer);
+            .calledWith(fakeJob, fakeJob._id)
+            .nextOneTimeWith(fakeJob);
         })
       );
 
       Then(() => {
-        //console.log('acc ' + JSON.stringify(confirmationService.accept));
+        //  console.log('acc ' + JSON.stringify(confirmationService.accept));
         /* confirmationService.accept.subscribe(
             res => {
               console.log('res ' + res);
@@ -449,11 +449,11 @@ describe('CustomerEditComponent', () => {
           ); */
         // @ts-ignore
         /*  couchDBServiceSpy
-          .deleteEntry(fakeCustomer, fakeCustomer._id)
+          .deleteEntry(fakeJob, fakeJob._id)
           .subscribe(res => {
             // @ts-ignore
             expect(componentUnderTest.sendStateUpdate).toHaveBeenCalled();
-            expect(router.navigate).toHaveBeenCalledWith(['../customer']);
+            expect(router.navigate).toHaveBeenCalledWith(['../job']);
           }); */
       });
     });

@@ -42,75 +42,86 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
   ) {}
 
   public ngOnInit() {
-    console.log('CustomerEditComponent');
-    this.getCustomer();
-    this.getJobs();
+    this.setup();
   }
 
-  private getCustomer() {
+  private setup() {
     this.subs.sink = this.route.params.subscribe(results => {
       // check if we are updating
       if (results['id']) {
         console.log('Edit mode');
-        this.isNew = false;
-        this.formTitle = 'Customer bearbeiten';
-
-        this.subs.sink = this.couchDBService
-          .fetchEntry('/' + results['id'])
-          .subscribe(customer => {
-            this.customer = customer;
-            console.log(this.customer);
-          });
+        this.editCustomer(results['id']);
       } else {
         console.log('New mode');
-        this.formTitle = 'Neuen Kunden anlegen';
-        this.customer = {
-          _id: uuidv4(),
-          type: 'customer'
-        };
+        this.newCustomer();
       }
     });
   }
 
+  private editCustomer(id: string) {
+    this.isNew = false;
+    this.formTitle = 'Customer bearbeiten';
+
+    this.subs.sink = this.couchDBService.fetchEntry('/' + id).subscribe(
+      customer => {
+        this.customer = customer;
+      },
+      error => {
+        console.error(error);
+      }
+    );
+  }
+
+  private newCustomer() {
+    this.formTitle = 'Neuen Kunden anlegen';
+    this.isNew = true;
+    this.editable = true;
+
+    this.customer = {
+      _id: uuidv4(),
+      type: 'customer',
+      active: true
+    };
+  }
+
   public onSubmit(): void {
-    if (this.customerForm.value.isNew) {
+    if (this.isNew) {
       console.log('Create a user');
-      this.onCreateCustomer();
+      this.saveCustomer();
     } else {
       console.log('Update a user');
-      this.onUpdateCustomer();
+      this.updateCustomer();
     }
   }
 
-  private onUpdateCustomer(): void {
-    this.createJob();
-
+  private updateCustomer(): void {
     this.subs.sink = this.couchDBService
-      .updateEntry(this.customer, this.customerForm.value._id)
+      .updateEntry(this.customer, this.customer._id)
       .subscribe(
         result => {
-          // Inform about Database change.
-          this.getCustomer();
           this.sendStateUpdate();
         },
         err => {
-          console.log(err);
+          console.error(err);
           this.showConfirm('error', err.message);
         }
       );
   }
 
-  private onCreateCustomer(): void {
-    this.createJob();
-
-    this.subs.sink = this.couchDBService
-      .writeEntry(this.customer)
-      .subscribe(result => {
+  private saveCustomer(): void {
+    console.log(this.customer);
+    this.subs.sink = this.couchDBService.writeEntry(this.customer).subscribe(
+      result => {
         this.sendStateUpdate();
-      });
+      },
+      error => {
+        console.error(error);
+        this.showConfirm('error', error.message);
+      }
+    );
   }
 
-  public onDelete(): void {
+  public deleteCustomer(): void {
     this.confirmationService.confirm({
       message: 'Sie wollen den Datensatz ' + this.customer.name + '?',
       accept: () => {
@@ -119,7 +130,7 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
           .subscribe(
             res => {
               this.sendStateUpdate();
-              this.router.navigate(['../user']);
+              this.router.navigate(['../customer']);
             },
             err => {
               this.showConfirm('error', err.message);
@@ -130,31 +141,6 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private createJob() {
-    this.customer.type = 'customer';
-    this.customer.name = this.customerForm.value.name || '';
-    this.customer.street = this.customerForm.value.street || '';
-    this.customer.streetNumber = this.customerForm.value.streetNumber || '';
-    this.customer.zip = this.customerForm.value.zip || '';
-    this.customer.city = this.customerForm.value.city || '';
-    this.customer.telephone = this.customerForm.value.telephone || '';
-    this.customer.email = this.customerForm.value.email || '';
-    this.customer.web = this.customerForm.value.web || '';
-    this.customer.active = this.customerForm.value.active || false;
-
-    if (this.customerForm.value._id) {
-      this.customer['_id'] = this.customerForm.value._id;
-    }
-
-    if (this.customerForm.value._id) {
-      this.customer['_rev'] = this.customerForm.value._rev;
-    }
-
-    return this.customer;
-  }
-
-  private getJobs() {}
-
   private showConfirm(type: string, result: string) {
     this.notificationsService.addSingle(
       type,
@@ -164,7 +150,7 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
   }
 
   private sendStateUpdate(): void {
-    this.couchDBService.sendStateUpdate('user');
+    this.couchDBService.sendStateUpdate('customer');
   }
 
   public onEdit() {

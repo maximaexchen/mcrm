@@ -49,7 +49,6 @@ export class OfferListComponent implements OnInit, OnDestroy {
   }
 
   public onFilter(event: any): void {
-    console.log(event);
     this.offerCount = event.filteredValue.length;
   }
 

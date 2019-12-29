@@ -16,7 +16,7 @@
         (save)="onSubmit()"
         (add)="onSubmit()"
         (edit)="onEdit()"
-        (delete)="onDelete()"
+        (delete)="deleteCustomer()"
       ></app-crud-nav>
     </div>
   </div>
@@ -26,6 +26,8 @@
     (ngSubmit)="onSubmit()"
     #customerForm="ngForm"
   >
+    {{ customer._id | json }}
+    {{ customer._rev | json }}
     <input type="hidden" [(ngModel)]="isNew" name="isNew" />
     <input type="hidden" [(ngModel)]="customer._id" name="_id" />
     <input type="hidden" [(ngModel)]="customer._rev" name="_rev" />
@@ -124,13 +126,13 @@
                   placeholder="Ort"
                   required
                   [(ngModel)]="customer.city"
-                  name="streetNumber"
+                  name="city"
                   #cityCheck="ngModel"
                   [readOnly]="!editable"
                 />
                 <small
                   class="form-text text-muted"
-                  i18n="@@string-citytNumber-required"
+                  i18n="@@string-city-required"
                   *ngIf="!cityCheck.valid && cityCheck.touched"
                   >Bitte geben Sie einen Ort ein.</small
                 >
@@ -176,7 +178,7 @@
                     }
                   ]"
                   name="active"
-                  [(ngModel)]="active"
+                  [(ngModel)]="customer.active"
                   [disabled]="!editable"
                 ></p-selectButton>
               </div>

@@ -9,17 +9,11 @@ import { Subscription } from 'rxjs/Subscription';
     <p-toast life="3000" position="top-right"></p-toast>
   `
 })
-export class NotificationsComponent implements OnInit, OnDestroy {
+export class NotificationsComponent {
   toast: Message[] = [];
   message: Message[] = [];
   toastSubscription: Subscription;
   messageSubscription: Subscription;
 
   constructor(private notificationsService: NotificationsService) {}
-
-  ngOnInit() {
-    console.log('NotificationsComponent');
-  }
-
-  ngOnDestroy() {}
 }

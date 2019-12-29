@@ -153,20 +153,13 @@ describe('JobListComponent', () => {
       router = TestBed.get(Router);
     });
 
-    When(
-      fakeAsync(() => {
-        componentUnderTest.showDetail(id);
-        tick();
-      })
-    );
+    When(() => {
+      componentUnderTest.showDetail(id);
+    });
 
-    Then(
-      fakeAsync(() => {
-        expect(router.navigate).toHaveBeenCalledWith([
-          '../job/' + id + '/edit'
-        ]);
-      })
-    );
+    Then(() => {
+      expect(router.navigate).toHaveBeenCalledWith(['../job/' + id + '/edit']);
+    });
   });
 
   describe('METHOD: onRowSelect(event)', () => {

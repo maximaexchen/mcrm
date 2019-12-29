@@ -5,7 +5,8 @@ import {
   ComponentFixture,
   TestBed,
   fakeAsync,
-  tick
+  tick,
+  flushMicrotasks
 } from '@angular/core/testing';
 
 import { GeneralModule } from '@app/modules/general.module';
@@ -159,20 +160,15 @@ describe('InvoiceListComponent', () => {
       router = TestBed.get(Router);
     });
 
-    When(
-      fakeAsync(() => {
-        componentUnderTest.showDetail(id);
-        tick();
-      })
-    );
+    When(() => {
+      componentUnderTest.showDetail(id);
+    });
 
-    Then(
-      fakeAsync(() => {
-        expect(router.navigate).toHaveBeenCalledWith([
-          '../invoice/' + id + '/edit'
-        ]);
-      })
-    );
+    Then(() => {
+      expect(router.navigate).toHaveBeenCalledWith([
+        '../invoice/' + id + '/edit'
+      ]);
+    });
   });
 
   describe('METHOD: onRowSelect(event)', () => {

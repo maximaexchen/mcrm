@@ -21,11 +21,11 @@ export class CouchDBService {
   constructor(private env: EnvService, private http: HttpClient) {}
 
   public writeEntry(obj: any): Observable<any> {
-    return this.http.post(this.dbRequest, document);
+    return this.http.post(this.dbRequest, obj);
   }
 
   public updateEntry(obj: any, id: string): Observable<any> {
-    return this.http.put(this.dbRequest + '/' + id, document);
+    return this.http.put(this.dbRequest + '/' + id, obj);
   }
 
   public deleteEntry(id: string, rev: string): Observable<any> {
@@ -51,11 +51,6 @@ export class CouchDBService {
     return this.http.get(this.dbRequest + param);
   }
 
-  public bulkUpdate(bulkObject: any): Observable<any> {
-    console.log(bulkObject);
-    return this.http.post(this.dbRequest + '/_bulk_docs', bulkObject);
-  }
-
   public getCustomers(): Observable<Customer[]> {
     return this.fetchEntries(
       '/_design/mcrm/_view/all-customers?include_docs=true'
@@ -78,53 +73,12 @@ export class CouchDBService {
     );
   }
 
-  public findDocuments(searchObject?: any): Observable<any> {
-    if (searchObject) {
-      console.log('findDocuments');
-      return this.http.post(this.dbRequest + '/_find', searchObject);
-    } else {
-      console.log('findDocuments all');
-      return this.fetchEntries(
-        '/_design/mcrm/_view/all-norms?include_docs=true'
-      );
-    }
-  }
-
-  public search(object: any): Observable<any> {
-    return this.http.post(this.dbRequest + '/_find', object);
-  }
-
   public sendStateUpdate(message: string) {
+    console.log('message ' + message);
     this.updateSubject.next({ text: message });
   }
 
   public setStateUpdate(): Observable<any> {
     return this.updateSubject.asObservable();
-  }
-
-  public getLoginUser(params: {
-    username: string;
-    password: string;
-  }): Observable<any> {
-    const updateQuery = {
-      use_index: ['_design/check_user'],
-      selector: {
-        _id: { $gt: null },
-        $and: [
-          {
-            userName: {
-              $eq: params.username
-            }
-          },
-          {
-            password: {
-              $eq: params.password
-            }
-          }
-        ]
-      }
-    };
-
-    return this.http.post(this.dbRequest + '/_find', updateQuery);
   }
 }

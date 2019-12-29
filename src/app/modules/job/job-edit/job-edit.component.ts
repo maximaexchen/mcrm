@@ -1,11 +1,15 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Job } from '@app/models/job.model';
-import { CouchDBService } from '@app/services/couchDB.service';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NotificationsService } from '@app/services/notifications.service';
+import { NgForm } from '@angular/forms';
+
 import { ConfirmationService } from 'primeng/api';
-import { takeWhile } from 'rxjs/operators';
+import { SubSink } from 'SubSink';
+import uuidv4 from '@bundled-es-modules/uuid/v4.js';
+
+import { CouchDBService } from '@services/couchDB.service';
+import { NotificationsService } from '@services/notifications.service';
+import { Job } from '@app/models/job.model';
+import { Invoice } from '@app/models/invoice.model';
 
 @Component({
   selector: 'app-job-edit',
@@ -13,24 +17,19 @@ import { takeWhile } from 'rxjs/operators';
   styleUrls: ['./job-edit.component.scss']
 })
 export class JobEditComponent implements OnInit, OnDestroy {
-  @ViewChild('jobForm', { static: false }) jobForm: NgForm;
+  @ViewChild('offerForm', { static: false }) offerForm: NgForm;
 
-  alive = true;
+  private subs = new SubSink();
   editable = false;
 
   formTitle: string;
   isNew = true; // 1 = new - 2 = update
 
-  writeItem: Job;
-  jobs: Job[] = [];
+  job: Job;
 
-  id: string;
-  rev: string;
-  type: string;
-  name: string;
-  date: Date;
-  deadline: Date;
-  active = 0;
+  jobs: Job[] = [];
+  offers: Job[] = [];
+  invoices: Invoice[] = [];
 
   constructor(
     private couchDBService: CouchDBService,
@@ -41,84 +40,93 @@ export class JobEditComponent implements OnInit, OnDestroy {
   ) {}
 
   public ngOnInit() {
-    console.log('JobEditComponent');
-    this.getJob();
+    this.setup();
   }
 
-  private getJob() {
-    this.route.params.pipe(takeWhile(() => this.alive)).subscribe(results => {
+  private setup() {
+    this.subs.sink = this.route.params.subscribe(results => {
       // check if we are updating
       if (results['id']) {
         console.log('Edit mode');
-        this.isNew = false;
-        this.formTitle = 'Job bearbeiten';
-
-        this.couchDBService
-          .fetchEntry('/' + results['id'])
-          .pipe(takeWhile(() => this.alive))
-          .subscribe(entry => {
-            this.id = entry['_id'];
-            this.rev = entry['_rev'];
-            this.type = 'job';
-            this.name = entry['name'];
-            this.date = entry['date'];
-            this.deadline = entry['deadline'];
-          });
+        this.editJob(results['id']);
       } else {
         console.log('New mode');
-        this.formTitle = 'Neuen Job anlegen';
-        this.jobs = [];
+        this.newJob();
       }
     });
   }
 
+  private editJob(id: string) {
+    this.isNew = false;
+    this.formTitle = 'Job bearbeiten';
+
+    this.subs.sink = this.couchDBService.fetchEntry('/' + id).subscribe(
+      job => {
+        this.job = job;
+      },
+      error => {
+        console.error(error);
+      }
+    );
+  }
+
+  private newJob() {
+    this.formTitle = 'Neuen Kunden anlegen';
+    this.isNew = true;
+    this.editable = true;
+
+    this.job = {
+      _id: uuidv4(),
+      type: 'job'
+    };
+  }
+
   public onSubmit(): void {
-    if (this.jobForm.value.isNew) {
-      console.log('Create a job');
-      this.onCreateJob();
+    if (this.isNew) {
+      console.log('Create a user');
+      this.saveJob();
     } else {
-      console.log('Update a job');
-      this.onUpdateJob();
+      console.log('Update a user');
+      this.updateJob();
     }
   }
 
-  private onUpdateJob(): void {
-    this.createWriteItem();
-
-    this.couchDBService
-      .updateEntry(this.writeItem, this.jobForm.value._id)
-      .pipe(takeWhile(() => this.alive))
+  private updateJob(): void {
+    this.subs.sink = this.couchDBService
+      .updateEntry(this.job, this.job._id)
       .subscribe(
         result => {
           // Inform about Database change.
-          this.getJob();
           this.sendStateUpdate();
         },
         err => {
-          console.log(err);
+          console.error(err);
           this.showConfirm('error', err.message);
         }
       );
   }
 
-  private onCreateJob(): void {
-    this.createWriteItem();
-
-    this.couchDBService
-      .writeEntry(this.writeItem)
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(result => {
+  private saveJob(): void {
+    console.log(this.job);
+    this.subs.sink = this.couchDBService.writeEntry(this.job).subscribe(
+      result => {
         this.sendStateUpdate();
-      });
+      },
+      error => {
+        console.error(error);
+        this.showConfirm('error', error.message);
+      }
+    );
   }
 
-  public onDelete(): void {
+  public deleteJob(): void {
+    console.log('DDDD');
     this.confirmationService.confirm({
-      message: 'Sie wollen den Datensatz ' + this.name + '?',
+      message: 'Sie wollen den Datensatz ' + this.job.name + '?',
       accept: () => {
-        this.couchDBService
-          .deleteEntry(this.id, this.rev)
-          .pipe(takeWhile(() => this.alive))
+        console.log('FFFFFF');
+        this.subs.sink = this.couchDBService
+          .deleteEntry(this.job._id, this.job._rev)
           .subscribe(
             res => {
               this.sendStateUpdate();
@@ -133,25 +141,6 @@ export class JobEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private createWriteItem() {
-    this.writeItem = {};
-    this.writeItem['type'] = 'job';
-    this.writeItem['name'] = this.jobForm.value.name || '';
-    this.writeItem['date'] = this.jobForm.value.date || '';
-    this.writeItem['deadline'] = this.jobForm.value.deadline || '';
-    this.writeItem['active'] = this.jobForm.value.active || false;
-
-    if (this.jobForm.value._id) {
-      this.writeItem['_id'] = this.jobForm.value._id;
-    }
-
-    if (this.jobForm.value._id) {
-      this.writeItem['_rev'] = this.jobForm.value._rev;
-    }
-
-    return this.writeItem;
-  }
-
   private showConfirm(type: string, result: string) {
     this.notificationsService.addSingle(
       type,
@@ -164,11 +153,11 @@ export class JobEditComponent implements OnInit, OnDestroy {
     this.couchDBService.sendStateUpdate('job');
   }
 
-  public ngOnDestroy(): void {
-    this.alive = false;
-  }
-
   public onEdit() {
     this.editable = true;
+  }
+
+  public ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

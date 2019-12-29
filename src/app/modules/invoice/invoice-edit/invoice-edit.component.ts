@@ -1,11 +1,16 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Invoice } from '@app/models/invoice.model';
-import { CouchDBService } from '@app/services/couchDB.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { takeWhile } from 'rxjs/operators';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { NotificationsService } from '@app/services/notifications.service';
+
 import { ConfirmationService } from 'primeng/api';
+import { SubSink } from 'SubSink';
+import uuidv4 from '@bundled-es-modules/uuid/v4.js';
+
+import { CouchDBService } from '@services/couchDB.service';
+import { NotificationsService } from '@services/notifications.service';
+import { Invoice } from '@app/models/invoice.model';
+import { Job } from '@app/models/job.model';
+import { Offer } from '@app/models/offer.model';
 
 @Component({
   selector: 'app-invoice-edit',
@@ -13,23 +18,19 @@ import { ConfirmationService } from 'primeng/api';
   styleUrls: ['./invoice-edit.component.scss']
 })
 export class InvoiceEditComponent implements OnInit, OnDestroy {
-  @ViewChild('invoiceForm', { static: false }) invoiceForm: NgForm;
+  @ViewChild('customerForm', { static: false }) customerForm: NgForm;
 
-  alive = true;
+  private subs = new SubSink();
   editable = false;
 
   formTitle: string;
   isNew = true; // 1 = new - 2 = update
 
-  writeItem: Invoice;
-  invoices: Invoice[] = [];
+  invoice: Invoice;
 
-  id: string;
-  rev: string;
-  type: string;
-  name: string;
-  date: Date;
-  active = 0;
+  jobs: Job[] = [];
+  offers: Offer[] = [];
+  invoices: Invoice[] = [];
 
   constructor(
     private couchDBService: CouchDBService,
@@ -40,83 +41,91 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
   ) {}
 
   public ngOnInit() {
-    console.log('InvoiceEditComponent');
-    this.getInvoice();
+    this.setup();
   }
 
-  private getInvoice() {
-    this.route.params.pipe(takeWhile(() => this.alive)).subscribe(results => {
+  private setup() {
+    this.subs.sink = this.route.params.subscribe(results => {
       // check if we are updating
       if (results['id']) {
         console.log('Edit mode');
-        this.isNew = false;
-        this.formTitle = 'Invoice bearbeiten';
-
-        this.couchDBService
-          .fetchEntry('/' + results['id'])
-          .pipe(takeWhile(() => this.alive))
-          .subscribe(entry => {
-            this.id = entry['_id'];
-            this.rev = entry['_rev'];
-            this.type = 'invoice';
-            this.name = entry['name'];
-            this.date = entry['date'];
-          });
+        this.editInvoice(results['id']);
       } else {
         console.log('New mode');
-        this.formTitle = 'Neuen Invoice anlegen';
-        this.invoices = [];
+        this.newInvoice();
       }
     });
   }
 
+  private editInvoice(id: string) {
+    this.isNew = false;
+    this.formTitle = 'Invoice bearbeiten';
+
+    this.subs.sink = this.couchDBService.fetchEntry('/' + id).subscribe(
+      invoice => {
+        this.invoice = invoice;
+      },
+      error => {
+        console.error(error);
+      }
+    );
+  }
+
+  private newInvoice() {
+    this.formTitle = 'Neuen Kunden anlegen';
+    this.isNew = true;
+    this.editable = true;
+
+    this.invoice = {
+      _id: uuidv4(),
+      type: 'invoice'
+    };
+  }
+
   public onSubmit(): void {
-    if (this.invoiceForm.value.isNew) {
-      console.log('Create a invoice');
-      this.onCreateInvoice();
+    if (this.isNew) {
+      console.log('Create a user');
+      this.saveInvoice();
     } else {
-      console.log('Update a invoice');
-      this.onUpdateInvoice();
+      console.log('Update a user');
+      this.updateInvoice();
     }
   }
 
-  private onUpdateInvoice(): void {
-    this.createWriteItem();
-
-    this.couchDBService
-      .updateEntry(this.writeItem, this.invoiceForm.value._id)
-      .pipe(takeWhile(() => this.alive))
+  private updateInvoice(): void {
+    this.subs.sink = this.couchDBService
+      .updateEntry(this.invoice, this.invoice._id)
       .subscribe(
         result => {
           // Inform about Database change.
-          this.getInvoice();
           this.sendStateUpdate();
         },
         err => {
-          console.log(err);
+          console.error(err);
           this.showConfirm('error', err.message);
         }
       );
   }
 
-  private onCreateInvoice(): void {
-    this.createWriteItem();
-
-    this.couchDBService
-      .writeEntry(this.writeItem)
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(result => {
+  private saveInvoice(): void {
+    console.log(this.invoice);
+    this.subs.sink = this.couchDBService.writeEntry(this.invoice).subscribe(
+      result => {
         this.sendStateUpdate();
-      });
+      },
+      error => {
+        console.error(error);
+        this.showConfirm('error', error.message);
+      }
+    );
   }
 
-  public onDelete(): void {
+  public deleteInvoice(): void {
     this.confirmationService.confirm({
-      message: 'Sie wollen den Datensatz ' + this.name + '?',
+      message: 'Sie wollen den Datensatz ' + this.invoice.name + '?',
       accept: () => {
-        this.couchDBService
-          .deleteEntry(this.id, this.rev)
-          .pipe(takeWhile(() => this.alive))
+        this.subs.sink = this.couchDBService
+          .deleteEntry(this.invoice._id, this.invoice._rev)
           .subscribe(
             res => {
               this.sendStateUpdate();
@@ -131,24 +140,6 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private createWriteItem() {
-    this.writeItem = {};
-    this.writeItem['type'] = 'invoice';
-    this.writeItem['name'] = this.invoiceForm.value.name || '';
-    this.writeItem['date'] = this.invoiceForm.value.date || '';
-    this.writeItem['active'] = this.invoiceForm.value.active || false;
-
-    if (this.invoiceForm.value._id) {
-      this.writeItem['_id'] = this.invoiceForm.value._id;
-    }
-
-    if (this.invoiceForm.value._id) {
-      this.writeItem['_rev'] = this.invoiceForm.value._rev;
-    }
-
-    return this.writeItem;
-  }
-
   private showConfirm(type: string, result: string) {
     this.notificationsService.addSingle(
       type,
@@ -161,11 +152,11 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
     this.couchDBService.sendStateUpdate('invoice');
   }
 
-  public ngOnDestroy(): void {
-    this.alive = false;
-  }
-
   public onEdit() {
     this.editable = true;
+  }
+
+  public ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

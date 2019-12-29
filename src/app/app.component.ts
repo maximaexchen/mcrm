@@ -8,7 +8,7 @@ import { CouchDBService } from './services/couchDB.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'CRM';
 
   private dataStore: any;
@@ -17,20 +17,5 @@ export class AppComponent implements OnInit {
   userName = 'root';
   passWord = 'root';
 
-  constructor(
-    private couchDBService: CouchDBService,
-    private injector: Injector,
-    private messageService: MessageService
-  ) {}
-
-  ngOnInit() {
-    const params = {
-      username: this.userName,
-      password: this.passWord
-    };
-  }
-
-  public setUserValidation(user) {
-    this.user = user;
-  }
+  constructor() {}
 }

@@ -1,5 +1,10 @@
 import { RouterTestingModule } from '@angular/router/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {
+  TestBed,
+  fakeAsync,
+  tick,
+  flushMicrotasks
+} from '@angular/core/testing';
 
 import { CustomerListComponent } from './customer-list.component';
 import { GeneralModule } from '@app/modules/general.module';
@@ -153,20 +158,15 @@ describe('CustomerListComponent', () => {
       router = TestBed.get(Router);
     });
 
-    When(
-      fakeAsync(() => {
-        componentUnderTest.showDetail(id);
-        tick();
-      })
-    );
+    When(() => {
+      componentUnderTest.showDetail(id);
+    });
 
-    Then(
-      fakeAsync(() => {
-        expect(router.navigate).toHaveBeenCalledWith([
-          '../customer/' + id + '/edit'
-        ]);
-      })
-    );
+    Then(() => {
+      expect(router.navigate).toHaveBeenCalledWith([
+        '../customer/' + id + '/edit'
+      ]);
+    });
   });
 
   describe('METHOD: onRowSelect(event)', () => {
@@ -179,11 +179,9 @@ describe('CustomerListComponent', () => {
     When(
       fakeAsync(() => {
         const event = {
-          data: [
-            {
-              _id: '1'
-            }
-          ]
+          data: {
+            _id: '1'
+          }
         };
         componentUnderTest.onRowSelect(event);
         tick();

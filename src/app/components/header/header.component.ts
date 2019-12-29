@@ -16,7 +16,7 @@ export class HeaderComponent implements OnInit {
   public mainmenuItems: MenuItem[] = [];
   public editMenuItems: MenuItem[] = [];
 
-  constructor(private messageService: MessageService) {}
+  constructor() {}
 
   ngOnInit() {
     this.initMenu();
