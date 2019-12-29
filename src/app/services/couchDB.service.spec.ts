@@ -27,6 +27,7 @@ describe('CouchDBService test', () => {
   let fakeInvoices: {};
   let fakeInvoicesOutput: Offer[];
   let actualResult: any;
+  let nextSpy: any;
 
   Given(() => {
     TestBed.configureTestingModule({
@@ -100,7 +101,7 @@ describe('CouchDBService test', () => {
     describe('GIVEN a successful request THEN return a object', () => {
       Given(() => {
         fakeObject = {
-          _ig: '1',
+          _id: '1',
           _rev: '1',
           name: 'Customer name'
         };
@@ -113,6 +114,46 @@ describe('CouchDBService test', () => {
       });
     });
   });
+
+  /* describe('METHOD fetchEntries', () => {
+    When(() => {
+      serviceUnderTest.fetchEntries(
+        '/_design/mcrm/_view/all-customers?include_docs=true'
+      );
+    });
+
+    describe('GIVEN a successful request THEN return a object', () => {
+      Given(() => {
+        fakeCustomers = {
+          total_rows: 5,
+          offset: 0,
+          rows: [
+            {
+              id: '1',
+              key: 'Customer name',
+              value: '1',
+              doc: {
+                _id: '1',
+                _rev: '1',
+                type: 'customer',
+                name: 'Customer name'
+              }
+            }
+          ]
+        };
+
+        httpSpy.get.and.nextOneTimeWith(fakeObject);
+      });
+
+      Then(() => {
+        serviceUnderTest
+          .fetchEntries('/_design/mcrm/_view/all-customers?include_docs=true')
+          .subscribe(res => {
+            expect(expectestFakeObject).toEqual(fakeObject);
+          });
+      });
+    });
+  }); */
 
   describe('METHOD deleteEntry', () => {
     When(() => {
@@ -303,35 +344,31 @@ describe('CouchDBService test', () => {
     });
   });
 
-  /* describe('METHOD: setStateUpdate', () => {
+  describe('METHOD: setStateUpdate', () => {
     Given(() => {
       // @ts-ignore
-      serviceUnderTest.updateSubject.next('Hello');
-      spyOn(serviceUnderTest, 'sendStateUpdate')
-        .withArgs('Yep')
-        .and.callThrough();
+      serviceUnderTest.updateSubject.next('Test2');
     });
 
-    When(
+    When(() => {
+      // @ts-ignore
+      serviceUnderTest.setStateUpdate();
+    });
+
+    Then(
       fakeAsync(() => {
-        serviceUnderTest.setStateUpdate();
-        tick();
+        // @ts-ignore
+        serviceUnderTest.setStateUpdate().subscribe(res => {
+          expect(res).toEqual('Test2');
+        });
       })
     );
-
-    Then(() => {
-      // @ts-ignore
-      serviceUnderTest.updateSubject.subscribe(message => {
-        console.log('message: ' + message);
-        expect(message).toBe('test');
-      });
-    });
-  }); */
+  });
 
   describe('METHOD: sendStateUpdate', () => {
     Given(() => {
       // @ts-ignore
-      spyOn(serviceUnderTest, 'setStateUpdate').and.returnValue(of('test'));
+      spyOn(serviceUnderTest, 'setStateUpdate'); // .and.returnValue(of('test'));
     });
 
     When(() => {
@@ -339,8 +376,9 @@ describe('CouchDBService test', () => {
     });
 
     Then(() => {
-      serviceUnderTest.setStateUpdate().subscribe(message => {
-        expect(message).toBe('test');
+      // @ts-ignore
+      serviceUnderTest.updateSubject.subscribe(message => {
+        expect(message).toEqual({ text: 'test' });
       });
     });
   });

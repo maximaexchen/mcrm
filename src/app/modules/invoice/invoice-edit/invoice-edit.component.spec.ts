@@ -533,6 +533,18 @@ describe('InvoiceEditComponent', () => {
     });
   });
 
+  describe('METHOD: sendStateUpdate', () => {
+    When(() => {
+      // @ts-ignore
+      componentUnderTest.sendStateUpdate();
+    });
+
+    Then(() => {
+      // @ts-ignore
+      expect(couchDBServiceSpy.sendStateUpdate).toHaveBeenCalledWith('invoice');
+    });
+  });
+
   describe('METHOD: ngOnDestroy', () => {
     Given(() => {
       spyOn(componentUnderTest, 'ngOnDestroy').and.callThrough();

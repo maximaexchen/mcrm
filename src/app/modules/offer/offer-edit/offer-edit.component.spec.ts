@@ -533,6 +533,18 @@ describe('OfferEditComponent', () => {
     });
   });
 
+  describe('METHOD: sendStateUpdate', () => {
+    When(() => {
+      // @ts-ignore
+      componentUnderTest.sendStateUpdate();
+    });
+
+    Then(() => {
+      // @ts-ignore
+      expect(couchDBServiceSpy.sendStateUpdate).toHaveBeenCalledWith('offer');
+    });
+  });
+
   describe('METHOD: ngOnDestroy', () => {
     Given(() => {
       spyOn(componentUnderTest, 'ngOnDestroy').and.callThrough();

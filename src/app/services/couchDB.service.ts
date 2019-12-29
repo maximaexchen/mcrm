@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { map } from 'rxjs/operators';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
 import { EnvService } from './env.service';
 import { Job } from '@app/models/job.model';
@@ -16,7 +16,8 @@ export class CouchDBService {
   private dbName = this.env.dbName;
   public dbRequest = this.baseUrl + this.dbName;
 
-  private updateSubject = new Subject<any>();
+  private updateSubject = new BehaviorSubject<any>(0);
+  public readonly messages$ = this.updateSubject.asObservable();
 
   constructor(private env: EnvService, private http: HttpClient) {}
 
@@ -36,7 +37,6 @@ export class CouchDBService {
     return this.http.get(this.dbRequest + param).pipe(
       map(responseData => {
         const entriesArray = [];
-
         for (const key in responseData['rows']) {
           if (responseData['rows'].hasOwnProperty(key)) {
             entriesArray.push({ ...responseData['rows'][key]['doc'] });
@@ -79,6 +79,7 @@ export class CouchDBService {
   }
 
   public setStateUpdate(): Observable<any> {
-    return this.updateSubject.asObservable();
+    console.log(this.messages$);
+    return this.messages$;
   }
 }

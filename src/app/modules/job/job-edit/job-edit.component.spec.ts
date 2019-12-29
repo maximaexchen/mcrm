@@ -534,6 +534,18 @@ describe('JobEditComponent', () => {
     });
   });
 
+  describe('METHOD: sendStateUpdate', () => {
+    When(() => {
+      // @ts-ignore
+      componentUnderTest.sendStateUpdate();
+    });
+
+    Then(() => {
+      // @ts-ignore
+      expect(couchDBServiceSpy.sendStateUpdate).toHaveBeenCalledWith('job');
+    });
+  });
+
   describe('METHOD: ngOnDestroy', () => {
     Given(() => {
       spyOn(componentUnderTest, 'ngOnDestroy').and.callThrough();
