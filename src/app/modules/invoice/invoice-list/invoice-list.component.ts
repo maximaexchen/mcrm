@@ -40,7 +40,7 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
   }
 
   public onRowSelect(event) {
-    this.router.navigate(['../invoice/' + event.data[0]._id + '/edit']);
+    this.router.navigate(['../invoice/' + event.data._id + '/edit']);
   }
 
   public onFilter(event: any): void {

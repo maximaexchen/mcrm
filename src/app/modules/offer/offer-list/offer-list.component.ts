@@ -27,6 +27,7 @@ export class OfferListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.subs.sink = this.couchDBService.setStateUpdate().subscribe(
       message => {
+        console.log('message: ' + message);
         if (message.text === 'offer') {
           this.isLoading = false;
           this.getOffers();
@@ -40,12 +41,13 @@ export class OfferListComponent implements OnInit, OnDestroy {
   }
 
   private getOffers() {
+    console.log('getOffers');
     this.isLoading = false;
     this.offers$ = this.couchDBService.getOffers();
   }
 
   public onRowSelect(event) {
-    this.router.navigate(['../offer/' + event.data[0]._id + '/edit']);
+    this.router.navigate(['../offer/' + event.data._id + '/edit']);
   }
 
   public onFilter(event: any): void {

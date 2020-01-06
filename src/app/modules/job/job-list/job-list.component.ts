@@ -45,7 +45,7 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   public onRowSelect(event) {
-    this.router.navigate(['../job/' + event.data[0]._id + '/edit']);
+    this.router.navigate(['../job/' + event.data._id + '/edit']);
   }
 
   public onFilter(event: any): void {

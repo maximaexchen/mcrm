@@ -11,11 +11,31 @@ import { Offer } from '@app/models';
 import { MessageService, ConfirmationService, Confirmation } from 'primeng/api';
 import { NotificationsService } from '@app/services/notifications.service';
 
+export class ConfirmationServiceMock {
+  public key = 'mock1';
+  public header = 'Delete Confirmation';
+  public icon = '';
+  public message = '';
+  //  Call Accept to emulate a user accepting
+  public accept: () => void;
+  //  Call Reject to emulate a user rejecting
+  public reject: () => void;
+  private requireConfirmationSource = new Subject<any>();
+  requireConfirmation$ = this.requireConfirmationSource.asObservable();
+  //
+  public confirm(config: any) {
+    console.log('In confirm service mock...');
+    this.message = config.message;
+    this.accept = config.accept;
+    this.reject = config.reject;
+    console.log(this.message);
+    return this;
+  }
+}
+
 describe('OfferEditComponent', () => {
   let componentUnderTest: OfferEditComponent;
   let couchDBServiceSpy: Spy<CouchDBService>;
-  let confirmationServiceSpy: Spy<ConfirmationService>;
-  let confirmationService: ConfirmationService;
   let fakeOffer: Offer;
   let router = {
     navigate: jasmine.createSpy('navigate') // to spy on the url that has been routed
@@ -23,6 +43,8 @@ describe('OfferEditComponent', () => {
   let activatedRoute: any;
   let id: string;
   let confirmation: Confirmation;
+
+  let confirmService: ConfirmationServiceMock;
 
   const activatedRouteStub = {
     params: {
@@ -50,11 +72,7 @@ describe('OfferEditComponent', () => {
           provide: NotificationsService,
           useValue: createSpyFromClass(NotificationsService)
         },
-        ConfirmationService,
-        /* {
-          provide: ConfirmationService,
-          useValue: createSpyFromClass(ConfirmationService)
-        }, */
+        { provide: ConfirmationService, useValue: confirmService },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: activatedRouteStub }
       ]
@@ -63,8 +81,7 @@ describe('OfferEditComponent', () => {
     componentUnderTest = TestBed.get(OfferEditComponent);
     couchDBServiceSpy = TestBed.get(CouchDBService);
     activatedRoute = TestBed.get(ActivatedRoute);
-    confirmationServiceSpy = TestBed.get(ConfirmationService);
-    confirmationService = new ConfirmationService();
+    confirmService = new ConfirmationServiceMock();
 
     fakeOffer = undefined;
   });
@@ -383,102 +400,33 @@ describe('OfferEditComponent', () => {
         name: 'AAA'
       };
 
-      confirmation = {
-        message: 'Sie wollen den Datensatz ' + fakeOffer.name + '?',
-        accept: () => console.log('accept in conf')
-      };
-
-      confirmationService = new ConfirmationService();
-
-      componentUnderTest.offer = fakeOffer;
-
-      // @ts-ignore
-      spyOn(componentUnderTest, 'deleteOffer').and.callThrough();
-      spyOn(confirmationService, 'confirm');
-      /* spyOn(confirmationService, 'confirm').and.callFake(
-        (confirmation: Confirmation) => {
-          console.log(`fake calling accept`);
-          confirmation.accept();
-          return confirmationService;
-        }
-      ); */
-      /* spyOn(confirmationService, 'confirm').and.callFake(confirmation => {
-        console.log('ÜÜÜ ' + JSON.stringify(confirmation));
-        return confirmation.accept();
-      }); */
       // @ts-ignore
       spyOn(componentUnderTest, 'sendStateUpdate');
     });
 
-    When(
-      fakeAsync(() => {
-        // @ts-ignore
-        componentUnderTest.deleteOffer();
-        tick();
-      })
-    );
-
-    describe('GIVEN offer THEN delete offer', () => {
-      Given(
-        fakeAsync(() => {
-          // @ts-ignore
-          /* confirmationServiceSpy.confirm.calledWith((conf: Confirmation) => {
-          return conf.accept();
-        }); */
-          confirmationService.accept.subscribe(r => {
-            console.log('r: ' + r);
-          });
-          confirmationService.confirm({});
-          tick();
-
-          couchDBServiceSpy.deleteEntry
-            .calledWith(fakeOffer, fakeOffer._id)
-            .nextOneTimeWith(fakeOffer);
-        })
-      );
-
-      Then(() => {
-        //  console.log('acc ' + JSON.stringify(confirmationService.accept));
-        /* confirmationService.accept.subscribe(
-            res => {
-              console.log('res ' + res);
-            },
-            err => console.log('err ' + err),
-            () => console.log('complete ')
-          ); */
-        // @ts-ignore
-        /*  couchDBServiceSpy
-          .deleteEntry(fakeOffer, fakeOffer._id)
-          .subscribe(res => {
-            // @ts-ignore
-            expect(componentUnderTest.sendStateUpdate).toHaveBeenCalled();
-            expect(router.navigate).toHaveBeenCalledWith(['../offer']);
-          }); */
-      });
+    When(() => {
+      // @ts-ignore
+      // componentUnderTest.deleteOffer();
+      console.log(confirmService.accept());
+      confirmService.accept();
     });
 
-    /* describe('GIVEN error THEN save failed', () => {
-      Given(() => {
-        const testError = {
-          message: 'Test 404 error'
-        };
-        couchDBServiceSpy.writeEntry.and.returnValue(throwError(testError));
-      });
-
+    describe('GIVEN offer THEN delete offer', () => {
       Then(() => {
         // @ts-ignore
-        couchDBServiceSpy.deleteEntry().subscribe(
-          res => res,
-          err => {
-            expect(console.error).toHaveBeenCalled();
-            expect(err).toEqual({
-              status: 404,
-              error: { message: 'Test 404 error' }
-            });
-          }
-        );s
+        expect(componentUnderTest.sendStateUpdate).toHaveBeenCalled();
       });
-    }); */
+      /* Then(
+        fakeAsync(() => {
+          couchDBServiceSpy
+            .deleteEntry(fakeOffer._id, fakeOffer._rev)
+            .subscribe(del => {
+              console.log('del: ' + del);
+            });
+          tick();
+        })
+      ); */
+    });
   });
 
   describe('METHOD: showConfirm', () => {

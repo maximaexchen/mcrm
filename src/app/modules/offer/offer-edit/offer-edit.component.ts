@@ -63,6 +63,7 @@ export class OfferEditComponent implements OnInit, OnDestroy {
 
     this.subs.sink = this.couchDBService.fetchEntry('/' + id).subscribe(
       offer => {
+        console.log(offer);
         this.offer = offer;
       },
       error => {
@@ -123,7 +124,8 @@ export class OfferEditComponent implements OnInit, OnDestroy {
   public deleteOffer(): void {
     console.log('DDDD');
     this.confirmationService.confirm({
-      message: 'Sie wollen den Datensatz ' + this.offer.name + '?',
+      /* message: 'Sie wollen den Datensatz ' + this.offer.name + '?', */
+      message: 'Sie wollen den Datensatz?',
       accept: () => {
         console.log('FFFFFF');
         this.subs.sink = this.couchDBService

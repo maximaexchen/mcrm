@@ -34,6 +34,7 @@ export class CouchDBService {
   }
 
   public fetchEntries(param: string): Observable<any> {
+    console.log(this.dbRequest + param);
     return this.http.get(this.dbRequest + param).pipe(
       map(responseData => {
         const entriesArray = [];
@@ -74,12 +75,10 @@ export class CouchDBService {
   }
 
   public sendStateUpdate(message: string) {
-    console.log('message ' + message);
     this.updateSubject.next({ text: message });
   }
 
   public setStateUpdate(): Observable<any> {
-    console.log(this.messages$);
     return this.messages$;
   }
 }

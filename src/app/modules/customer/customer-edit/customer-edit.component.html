@@ -1,8 +1,8 @@
 <ng-container *ngIf="customer">
   <div class="row detail-edit-header">
     <div class="col-sm-4">
-      <h1 *ngIf="companytName">{{ companytName }}</h1>
-      <h1 *ngIf="!firstName || !lastName" i18n="@@string-new-dataset">
+      <h1 *ngIf="customer.name">{{ customer.name }}</h1>
+      <h1 *ngIf="!customer.name || !customer.name" i18n="@@string-new-dataset">
         Datensatz erstellen
       </h1>
     </div>
@@ -26,8 +26,6 @@
     (ngSubmit)="onSubmit()"
     #customerForm="ngForm"
   >
-    {{ customer._id | json }}
-    {{ customer._rev | json }}
     <input type="hidden" [(ngModel)]="isNew" name="isNew" />
     <input type="hidden" [(ngModel)]="customer._id" name="_id" />
     <input type="hidden" [(ngModel)]="customer._rev" name="_rev" />

@@ -181,11 +181,9 @@ describe('InvoiceListComponent', () => {
     When(
       fakeAsync(() => {
         const event = {
-          data: [
-            {
-              _id: '1'
-            }
-          ]
+          data: {
+            _id: '1'
+          }
         };
         componentUnderTest.onRowSelect(event);
         tick();
