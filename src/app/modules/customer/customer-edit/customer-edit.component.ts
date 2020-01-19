@@ -12,6 +12,7 @@ import { Customer } from '@app/models/customer.model';
 import { Job } from '@app/models/job.model';
 import { Offer } from '@app/models/offer.model';
 import { Invoice } from '@app/models/invoice.model';
+import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer-edit',
@@ -159,5 +160,38 @@ export class CustomerEditComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this.subs.unsubscribe();
+  }
+
+  private addNormToLinkedNorms(relatedNorms: any[]) {
+    relatedNorms.forEach(relatedNorm => {
+      // get the linked Norm
+      this.subs.sink = this.couchDBService
+        .fetchEntry('/' + relatedNorm)
+        .pipe(
+          switchMap(linkedNorm => {
+            const newLinkedNorm = this.customer._id;
+
+            if (!linkedNorm['relatedFrom']) {
+              linkedNorm.relatedFrom = [];
+            }
+
+            // If norm not already exist - add it
+            if (linkedNorm.relatedFrom.indexOf(this.customer._id) === -1) {
+              linkedNorm.relatedFrom.push(newLinkedNorm);
+            }
+
+            // write current norm into linked norm under relatedFrom
+            return this.couchDBService
+              .updateEntry(linkedNorm, linkedNorm['_id'])
+              .pipe(tap(r => {}));
+          })
+        )
+        .subscribe(
+          result => {},
+          error => {
+            console.log(error.message);
+          }
+        );
+    });
   }
 }
